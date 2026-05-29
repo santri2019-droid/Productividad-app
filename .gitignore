@@ -3,5 +3,6 @@
 
 # Permitir index.html y archivos de configuración esenciales
 !index.html
+!app_logo.png
 !.gitignore
 !README.md
