@@ -2,7 +2,7 @@
 
 Una aplicación web de productividad premium, interactiva y totalmente responsive (optimizada para dispositivos móviles y escritorio), diseñada para ayudarte a trackear tus hábitos y gestionar tus tareas diarias con persistencia local automática.
 
-✨ **[¡Ver la Aplicación Online!](https://santri2019-droide.github.io/productividad/)**
+✨ **[¡Ver la Aplicación Online!](https://santri2019-droide.github.io/Productividad-app/)**
 
 ---
 
