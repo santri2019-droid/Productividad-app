@@ -514,6 +514,7 @@ function TrackerTab({ state, dispatch }) {
   const [valueModal, setValueModal] = useState(null); // { dateStr, item }
   const [valueInput, setValueInput] = useState('');
   const [editItem, setEditItem] = useState(null);
+  const [draggedIndex, setDraggedIndex] = useState(null);
   const [newItemModal, setNewItemModal] = useState(false);
   const [newItemForm, setNewItemForm] = useState({ name:'', category:'salud', hasValue:false });
   const inputRef = useRef(null);
@@ -632,17 +633,38 @@ function TrackerTab({ state, dispatch }) {
               </tr>
             </thead>
             <tbody>
-              {items.map(item => (
-                <tr key={item.id} className="border-b border-outline-variant/10 last:border-b-0">
-                  <td className="sticky left-0 bg-surface-container-lowest z-10 px-md py-[10px] border-r border-outline-variant/20 whitespace-nowrap">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-body-md font-medium text-on-surface">{item.name}</span>
-                      <button onClick={() => setEditItem({...item})}
-                        className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded">
-                        <span className="material-symbols-outlined text-[16px] text-on-surface-variant">settings</span>
-                      </button>
-                    </div>
-                  </td>
+              {items.map((item, index) => {
+                const isDragged = draggedIndex === index;
+                return (
+                  <tr key={item.id}
+                    draggable
+                    onDragStart={(e) => {
+                      setDraggedIndex(index);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                    }}
+                    onDragEnter={(e) => {
+                      if (draggedIndex !== null && draggedIndex !== index) {
+                        dispatch({ type: 'MOVE_ITEM', fromIndex: draggedIndex, toIndex: index });
+                        setDraggedIndex(index);
+                      }
+                    }}
+                    onDragEnd={() => setDraggedIndex(null)}
+                    className={`border-b border-outline-variant/10 last:border-b-0 transition-opacity ${isDragged ? 'opacity-40 bg-surface-container-low' : ''}`}>
+                    <td className="sticky left-0 bg-surface-container-lowest z-10 px-sm py-[10px] border-r border-outline-variant/20 whitespace-nowrap">
+                      <div className="flex items-center justify-between gap-1">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none">drag_indicator</span>
+                          <span className="text-body-md font-medium text-on-surface truncate">{item.name}</span>
+                        </div>
+                        <button onClick={() => setEditItem({...item, index})}
+                          className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded">
+                          <span className="material-symbols-outlined text-[16px] text-on-surface-variant">settings</span>
+                        </button>
+                      </div>
+                    </td>
                   {Array.from({ length: days }, (_, i) => {
                     const d = i + 1;
                     const dateStr = formatKey(year, month, d);
@@ -668,7 +690,8 @@ function TrackerTab({ state, dispatch }) {
                     );
                   })}
                 </tr>
-              ))}
+              );
+            })}
             </tbody>
           </table>
         </div>
@@ -785,6 +808,40 @@ function TrackerTab({ state, dispatch }) {
                 <span className="text-body-md text-on-surface">Admite valores numéricos</span>
               </label>
             </div>
+
+            {/* Reordenar posición */}
+            <div className="mt-lg pt-lg border-t border-outline-variant/30">
+              <label className="text-label-sm font-bold text-on-surface-variant block mb-2 uppercase tracking-wider">Reordenar Posición</label>
+              <div className="flex gap-sm">
+                <button
+                  onClick={() => {
+                    if (editItem.index > 0) {
+                      dispatch({ type: 'MOVE_ITEM', fromIndex: editItem.index, toIndex: editItem.index - 1 });
+                      setEditItem({ ...editItem, index: editItem.index - 1 });
+                    }
+                  }}
+                  disabled={editItem.index === 0}
+                  className="flex-1 py-2 px-md border border-outline-variant/60 rounded-xl text-label-md font-semibold text-primary disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                >
+                  <span className="material-symbols-outlined text-[18px]">arrow_upward</span>
+                  Subir
+                </button>
+                <button
+                  onClick={() => {
+                    if (editItem.index < items.length - 1) {
+                      dispatch({ type: 'MOVE_ITEM', fromIndex: editItem.index, toIndex: editItem.index + 1 });
+                      setEditItem({ ...editItem, index: editItem.index + 1 });
+                    }
+                  }}
+                  disabled={editItem.index === items.length - 1}
+                  className="flex-1 py-2 px-md border border-outline-variant/60 rounded-xl text-label-md font-semibold text-primary disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center gap-1 active:scale-95 transition-transform"
+                >
+                  <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
+                  Bajar
+                </button>
+              </div>
+            </div>
+
             <div className="flex gap-sm mt-xl">
               <button onClick={deleteItem}
                 className="py-3 px-md border border-error/30 text-error rounded-xl text-label-md font-medium hover:bg-error-container/20 transition-colors active:scale-95">
@@ -1288,6 +1345,14 @@ function reducer(state, action) {
     case 'ADD_ITEM':    return { ...state, items: [...state.items, action.item] };
     case 'EDIT_ITEM':   return { ...state, items: state.items.map(i => i.id===action.item.id ? action.item : i) };
     case 'DELETE_ITEM': return { ...state, items: state.items.filter(i => i.id!==action.itemId) };
+    case 'MOVE_ITEM': {
+      const { fromIndex, toIndex } = action;
+      if (toIndex < 0 || toIndex >= state.items.length) return state;
+      const items = [...state.items];
+      const [moved] = items.splice(fromIndex, 1);
+      items.splice(toIndex, 0, moved);
+      return { ...state, items };
+    }
     case 'ADD_TASK':    return { ...state, tasks: [action.task, ...state.tasks] };
     case 'TOGGLE_TASK': return { ...state, tasks: state.tasks.map(t => t.id===action.taskId ? {...t,done:!t.done} : t) };
     case 'DELETE_TASK': return { ...state, tasks: state.tasks.filter(t => t.id!==action.taskId) };
