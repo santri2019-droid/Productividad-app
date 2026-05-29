@@ -1,0 +1,7 @@
+# Ignorar todo por defecto para mantener el repositorio limpio
+*
+
+# Permitir index.html y archivos de configuración esenciales
+!index.html
+!.gitignore
+!README.md
