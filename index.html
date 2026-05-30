@@ -22,6 +22,11 @@
 <!-- Babel for JSX -->
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
+<!-- Firebase SDKs (Compatibles con Scripts de Navegador) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
 <script id="tailwind-config">
   tailwind.config = {
     darkMode: 'class',
@@ -186,6 +191,22 @@
 <div id="root"></div>
 
 <script type="text/babel">
+// ─── FIREBASE CONFIGURATION & INITIALIZATION ─────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCWD9Fv2DfVqyRAVrrCqIBP27qBlcTpvjY",
+  authDomain: "productividad-app.firebaseapp.com",
+  projectId: "productividad-app",
+  storageBucket: "productividad-app.firebasestorage.app",
+  messagingSenderId: "533954083119",
+  appId: "1:533954083119:web:13d22e5d60384a793489da"
+};
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+
 const { useState, useEffect, useCallback, useRef, useMemo } = React;
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
@@ -1259,7 +1280,7 @@ function EvolutionTab({ state }) {
 }
 
 // ─── SETTINGS ────────────────────────────────────────────────────────────────
-function SettingsTab({ state, dispatch }) {
+function SettingsTab({ state, dispatch, user, setAuthModal, forceSync, dbLoading }) {
   const exportData = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
     const a = document.createElement('a');
@@ -1299,15 +1320,54 @@ function SettingsTab({ state, dispatch }) {
       {/* Account */}
       <section>
         <h2 className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Cuenta</h2>
-        <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex items-center gap-lg">
-          <div className="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[28px] text-on-surface-variant icon-fill">account_circle</span>
+        <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col md:flex-row md:items-center gap-md">
+          <div className="flex items-center gap-lg flex-1 min-w-0">
+            <div className="w-14 h-14 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[28px] text-on-surface-variant icon-fill">
+                {user ? 'cloud_done' : 'cloud_off'}
+              </span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-primary truncate">
+                {user ? user.email : 'Sincronización Local'}
+              </p>
+              <div className="text-[11px] font-semibold text-on-surface-variant flex items-center gap-1.5 mt-0.5">
+                {user ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-success"></span>
+                    <span className="text-success uppercase tracking-wider text-[9px]">Sincronizado en la nube</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-error"></span>
+                    <span className="text-error uppercase tracking-wider text-[9px]">Solo en este dispositivo</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="font-semibold text-primary">Usuario</p>
-            <p className="text-body-md text-on-surface-variant">productive.app</p>
+          <div className="flex gap-sm shrink-0 mt-2 md:mt-0 justify-end">
+            {user ? (
+              <>
+                <button onClick={forceSync} disabled={dbLoading}
+                  className="flex items-center gap-1.5 border border-outline-variant/60 hover:bg-surface-container-low text-primary px-3 py-2 rounded-xl text-label-md font-semibold active:scale-95 transition-transform disabled:opacity-50">
+                  <span className={`material-symbols-outlined text-[18px] ${dbLoading ? 'animate-spin' : ''}`}>sync</span>
+                  {dbLoading ? 'Sincronizando...' : 'Sincronizar'}
+                </button>
+                <button onClick={() => { if(confirm('¿Estás seguro de que quieres cerrar sesión?')) auth.signOut(); }}
+                  className="flex items-center gap-1.5 border border-error/20 hover:bg-error-container/10 text-error px-3 py-2 rounded-xl text-label-md font-semibold active:scale-95 transition-transform">
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  Salir
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setAuthModal(true)}
+                className="flex items-center gap-1.5 bg-primary text-on-primary px-4 py-2.5 rounded-xl text-label-md font-bold active:scale-95 transition-transform shadow-sm">
+                <span className="material-symbols-outlined text-[18px]">cloud_sync</span>
+                Activar Sincronización
+              </button>
+            )}
           </div>
-          <span className="material-symbols-outlined text-on-surface-variant ml-auto">chevron_right</span>
         </div>
       </section>
 
@@ -1414,10 +1474,158 @@ function reducer(state, action) {
   }
 }
 
+// ─── AUTH MODAL ─────────────────────────────────────────────────────────────
+function AuthModal({ isOpen, onClose }) {
+  const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setEmail('');
+      setPassword('');
+      setError('');
+      setLoading(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email.trim() || !password.trim()) {
+      setError('Por favor completa todos los campos.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+
+    const action = isRegister 
+      ? auth.createUserWithEmailAndPassword(email, password)
+      : auth.signInWithEmailAndPassword(email, password);
+
+    action
+      .then(() => {
+        onClose();
+      })
+      .catch(err => {
+        console.error("Auth error:", err);
+        switch (err.code) {
+          case 'auth/email-already-in-use':
+            setError('Esta cuenta de correo ya está registrada.');
+            break;
+          case 'auth/invalid-email':
+            setError('El correo electrónico ingresado no es válido.');
+            break;
+          case 'auth/weak-password':
+            setError('La contraseña debe tener al menos 6 caracteres.');
+            break;
+          case 'auth/wrong-password':
+            setError('La contraseña ingresada es incorrecta o el usuario no existe.');
+            break;
+          case 'auth/user-not-found':
+            setError('No existe ninguna cuenta con este correo.');
+            break;
+          default:
+            setError(err.message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+      onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-fade-in"></div>
+      <form onSubmit={handleSubmit}
+        className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto tab-content">
+        <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-lg md:hidden"></div>
+        <div className="flex justify-between items-center mb-lg">
+          <h3 className="font-bold text-headline-md text-primary">{isRegister ? 'Crear Cuenta Cloud' : 'Iniciar Sesión'}</h3>
+          <button type="button" onClick={onClose} className="p-1 rounded-full hover:bg-surface-container transition-colors">
+            <span className="material-symbols-outlined text-on-surface-variant">close</span>
+          </button>
+        </div>
+
+        {error && (
+          <div className="bg-error-container/30 border border-error/20 text-error px-md py-sm rounded-xl text-body-md mb-lg">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-md mb-xl">
+          <div>
+            <label className="text-label-md text-on-surface-variant block mb-1">Correo Electrónico</label>
+            <input 
+              type="email" 
+              value={email} 
+              onChange={e => setEmail(e.target.value)}
+              placeholder="ejemplo@correo.com"
+              required
+              disabled={loading}
+              className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors disabled:opacity-50" 
+            />
+          </div>
+          <div>
+            <label className="text-label-md text-on-surface-variant block mb-1">Contraseña</label>
+            <input 
+              type="password" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+              required
+              disabled={loading}
+              className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors disabled:opacity-50" 
+            />
+          </div>
+        </div>
+
+        <button 
+          type="submit"
+          disabled={loading}
+          className="w-full bg-primary text-on-primary font-bold py-4 rounded-xl active:scale-[0.98] transition-transform shadow-md flex items-center justify-center gap-2 disabled:opacity-50">
+          {loading ? (
+            <>
+              <span className="animate-spin material-symbols-outlined text-[20px]">sync</span>
+              {isRegister ? 'Creando cuenta...' : 'Iniciando sesión...'}
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-[20px]">{isRegister ? 'person_add' : 'login'}</span>
+              {isRegister ? 'Crear Cuenta' : 'Entrar'}
+            </>
+          )}
+        </button>
+
+        <p className="text-center text-body-md text-on-surface-variant/70 mt-lg">
+          {isRegister ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta aún?'}
+          <button 
+            type="button" 
+            disabled={loading}
+            onClick={() => { setIsRegister(!isRegister); setError(''); }}
+            className="text-primary font-bold ml-1.5 hover:underline disabled:opacity-50">
+            {isRegister ? 'Inicia Sesión' : 'Regístrate aquí'}
+          </button>
+        </p>
+      </form>
+    </div>
+  );
+}
+
 // ─── APP ─────────────────────────────────────────────────────────────────────
 function App() {
   const [tab, setTab] = useState('home');
   const [state, dispatch] = React.useReducer(reducer, null, loadState);
+
+  // Firebase states
+  const [user, setUser] = useState(null);
+  const [syncing, setSyncing] = useState(false);
+  const [dbLoading, setDbLoading] = useState(false);
+  const [authModal, setAuthModal] = useState(false);
 
   // Persist to localStorage
   useEffect(() => { saveState(state); }, [state]);
@@ -1428,13 +1636,70 @@ function App() {
     else document.documentElement.classList.remove('dark');
   }, []);
 
+  // Escuchar cambios de autenticación
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(u => {
+      setUser(u);
+      if (u) {
+        setDbLoading(true);
+        db.collection('users').doc(u.uid).get()
+          .then(doc => {
+            if (doc.exists) {
+              const data = doc.data();
+              setSyncing(true);
+              dispatch({ type: 'IMPORT', data: data });
+              setTimeout(() => setSyncing(false), 1000);
+            } else {
+              // Si es un usuario nuevo, guardamos el estado local actual en Firestore
+              db.collection('users').doc(u.uid).set(state)
+                .catch(e => console.error("Error al subir estado inicial:", e));
+            }
+          })
+          .catch(e => console.error("Error al descargar datos de Firestore:", e))
+          .finally(() => setDbLoading(false));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Sincronizar cambios a Firestore automáticamente (con debounce de 1.5s)
+  useEffect(() => {
+    if (!user || syncing || dbLoading) return;
+
+    const timer = setTimeout(() => {
+      db.collection('users').doc(user.uid).set(state)
+        .then(() => console.log("Sincronizado con Firebase Firestore"))
+        .catch(e => console.error("Error al sincronizar con Firestore:", e));
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [state, user, syncing, dbLoading]);
+
+  const forceSync = () => {
+    if (!user) return;
+    setDbLoading(true);
+    db.collection('users').doc(user.uid).set(state)
+      .then(() => alert("¡Sincronizado correctamente con la nube!"))
+      .catch(e => alert("Error al sincronizar: " + e.message))
+      .finally(() => setDbLoading(false));
+  };
+
   const renderTab = () => {
     switch(tab) {
       case 'home':      return <HomeTab state={state} setTab={setTab} />;
       case 'tracker':   return <TrackerTab state={state} dispatch={dispatch} />;
       case 'tasks':     return <TasksTab state={state} dispatch={dispatch} />;
       case 'evolution': return <EvolutionTab state={state} />;
-      case 'settings':  return <SettingsTab state={state} dispatch={dispatch} />;
+      case 'settings':  return (
+        <SettingsTab 
+          state={state} 
+          dispatch={dispatch} 
+          user={user} 
+          setAuthModal={setAuthModal} 
+          forceSync={forceSync} 
+          dbLoading={dbLoading} 
+        />
+      );
       default:          return <HomeTab state={state} setTab={setTab} />;
     }
   };
@@ -1483,6 +1748,9 @@ function App() {
       </div>
 
       <BottomNav tab={tab} setTab={setTab} />
+
+      {/* Auth Modal Overlay */}
+      <AuthModal isOpen={authModal} onClose={() => setAuthModal(false)} />
     </div>
   );
 }
