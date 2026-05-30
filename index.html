@@ -784,10 +784,10 @@ function TrackerTab({ state, dispatch }) {
                   const dow = new Date(year, month, d).getDay();
                   const isToday = isCurrentMonth && d === now.getDate();
                   return (
-                    <th key={d} id={`day-col-${d}`} className={`px-1 py-sm text-center min-w-[40px] transition-colors ${isToday ? 'bg-primary-container/60 shadow-inner' : ''}`}>
+                    <th key={d} id={`day-col-${d}`} className={`px-1 py-sm text-center min-w-[40px] transition-colors ${isToday ? 'bg-surface-container-highest' : ''}`}>
                       <div className="flex flex-col items-center gap-0.5">
-                        <span className={`text-[10px] font-medium ${isToday ? 'text-on-primary-container font-bold' : 'text-on-surface-variant/60'}`}>{DAYS_ES[dow][0]}</span>
-                        <span className={`text-label-md font-bold ${isToday ? 'text-on-primary-container text-[16px]' : 'text-on-surface-variant'}`}>{d}</span>
+                        <span className={`text-[10px] font-medium ${isToday ? 'text-on-surface font-bold' : 'text-on-surface-variant/60'}`}>{DAYS_ES[dow][0]}</span>
+                        <span className={`text-label-md font-bold ${isToday ? 'text-on-surface text-[16px]' : 'text-on-surface-variant'}`}>{d}</span>
                       </div>
                     </th>
                   );
@@ -835,7 +835,7 @@ function TrackerTab({ state, dispatch }) {
                     const isVal = item.hasValue && typeof v === 'string';
                     const isToday = isCurrentMonth && d === now.getDate();
                     return (
-                      <td key={d} className={`px-[3px] py-[6px] text-center transition-colors ${isToday ? 'bg-primary-container/30 border-x border-primary/20' : ''}`}>
+                      <td key={d} className={`px-[3px] py-[6px] text-center transition-colors ${isToday ? 'bg-surface-container-highest' : ''}`}>
                         <div className="tracker-cell flex items-center justify-center w-[34px] h-[34px] mx-auto rounded-lg"
                           onClick={() => handleCellClick(dateStr, item)}
                           onDoubleClick={() => { setValueInput(v === true ? '' : (v || '')); setValueModal({ dateStr, item }); }}>
