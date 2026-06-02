@@ -327,11 +327,11 @@ const DEFAULT_ITEMS = [
 ];
 
 const DEFAULT_TASKS = [
-  { id:'t1', name:'Revisión de diseño UI',       category:'trabajo',   priority:'urgentes',   done:false, createdAt:'2026-05-12' },
-  { id:'t2', name:'Actualizar repositorio',       category:'proyecto',  priority:'importantes',done:true,  createdAt:'2026-05-10' },
-  { id:'t3', name:'Llamar al banco',              category:'personal',  priority:'otras',      done:false, createdAt:'2026-05-13' },
-  { id:'t4', name:'Preparar presentación equipo', category:'trabajo',   priority:'urgentes',   done:false, createdAt:'2026-05-14' },
-  { id:'t5', name:'Revisar pipeline CI/CD',       category:'proyecto',  priority:'importantes',done:false, createdAt:'2026-05-11' },
+  { id:'t1', name:'Revisión de diseño UI',        category:'trabajo',  priority:'urgentes',   done:false, createdAt:'2026-05-12', checklist: [] },
+  { id:'t2', name:'Actualizar repositorio',       category:'proyecto', priority:'importantes',done:true,  createdAt:'2026-05-10', checklist: [] },
+  { id:'t3', name:'Llamar al banco',              category:'personal', priority:'otras',      done:false, createdAt:'2026-05-13', checklist: [] },
+  { id:'t4', name:'Preparar presentación equipo', category:'trabajo',  priority:'urgentes',   done:false, createdAt:'2026-05-14', checklist: [] },
+  { id:'t5', name:'Revisar pipeline CI/CD',       category:'proyecto', priority:'importantes',done:false, createdAt:'2026-05-11', checklist: [] },
 ];
 
 const DEFAULT_CATEGORIES = [
@@ -350,6 +350,7 @@ const INITIAL_STATE = {
   theme:   'light',
   year:    new Date().getFullYear(),
   month:   new Date().getMonth(),
+  progressBarColor: '#ffddb8',
 };
 
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
@@ -664,6 +665,31 @@ function TrackerTab({ state, dispatch }) {
   const inputRef = useRef(null);
   const scrollContainerRef = useRef(null);
 
+  const progressByItem = useMemo(() => {
+    return items.map(it => {
+      let total = 0;
+      for (let d = 1; d <= days; d++) {
+        const key = formatKey(year, month, d);
+        const v = history[key]?.[it.id];
+        if (v !== undefined && v !== null && v !== false && v !== '') {
+          if (it.hasValue && typeof v === 'string') {
+            const n = parseFloat(v.replace(/[^\d.-]/g,''));
+            if (!isNaN(n)) total += n; else total++;
+          } else total++;
+        }
+      }
+      const goal = Number(it.goalValue);
+      const hasGoal = !isNaN(goal) && goal > 0;
+      let maxPossible;
+      if (it.hasValue) {
+        maxPossible = hasGoal ? goal : Math.max(total, 1);
+      } else {
+        maxPossible = hasGoal ? goal : days;
+      }
+      return { id: it.id, pct: Math.min(Math.round((total / maxPossible) * 100), 100) };
+    });
+  }, [items, history, year, month, days]);
+
   useEffect(() => {
     if (isCurrentMonth && scrollContainerRef.current) {
       const el = document.getElementById(`day-col-${now.getDate()}`);
@@ -817,12 +843,14 @@ function TrackerTab({ state, dispatch }) {
                     className={`border-b border-outline-variant/10 last:border-b-0 transition-opacity ${isDragged ? 'opacity-40 bg-surface-container-low' : ''}`}>
                     <td className="sticky left-0 bg-surface-container-lowest z-10 px-sm py-[10px] border-r border-outline-variant/20 whitespace-nowrap">
                       <div className="flex items-center justify-between gap-1">
-                        <div className="flex items-center gap-1 min-w-0">
-                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none">drag_indicator</span>
-                          <span className="text-body-md font-medium text-on-surface truncate">{item.name}</span>
+                        <div className="flex items-center gap-1 min-w-0 relative py-1 px-1 -ml-1">
+                          <div className="absolute inset-y-0 left-0 rounded-sm transition-all duration-500 z-0"
+                            style={{ width: `${progressByItem.find(p => p.id === item.id)?.pct || 0}%`, backgroundColor: state.progressBarColor || '#ffddb8' }}></div>
+                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant/60 cursor-grab active:cursor-grabbing select-none relative z-10 mix-blend-multiply dark:mix-blend-screen">drag_indicator</span>
+                          <span className="text-body-md font-medium text-on-surface truncate relative z-10 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{item.name}</span>
                         </div>
                         <button onClick={() => setEditItem({...item, index})}
-                          className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded">
+                          className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded relative z-10">
                           <span className="material-symbols-outlined text-[16px] text-on-surface-variant">settings</span>
                         </button>
                       </div>
@@ -1039,8 +1067,10 @@ function TasksTab({ state, dispatch }) {
   const [filterPri, setFilterPri] = useState('todas');
   const [showAdd, setShowAdd] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
-  const [newTask, setNewTask] = useState({ name:'', category:state.categories?.[0]?.id || 'trabajo', priority:'urgentes', description: '' });
+  const [newTask, setNewTask] = useState({ name:'', category:state.categories?.[0]?.id || 'trabajo', priority:'urgentes', description: '', checklist: [] });
+  const [newChecklistItemText, setNewChecklistItemText] = useState('');
   const [editTaskItem, setEditTaskItem] = useState(null);
+  const [editChecklistItemText, setEditChecklistItemText] = useState('');
   const [expandedTasks, setExpandedTasks] = useState({});
   const [showCategoryManager, setShowCategoryManager] = useState(false);
   const [editingCategory, setEditingCategory] = useState(null);
@@ -1080,14 +1110,36 @@ function TasksTab({ state, dispatch }) {
   const addTask = () => {
     if (!newTask.name.trim()) return;
     dispatch({ type:'ADD_TASK', task:{ id:uid(), ...newTask, done:false, createdAt:new Date().toISOString().slice(0,10) } });
-    setNewTask({ name:'', category:categories[0]?.id || 'trabajo', priority:'urgentes', description: '' });
+    setNewTask({ name:'', category:categories[0]?.id || 'trabajo', priority:'urgentes', description: '', checklist: [] });
+    setNewChecklistItemText('');
     setShowAdd(false);
+  };
+
+  const addChecklistItemToNew = () => {
+    if (!newChecklistItemText.trim()) return;
+    setNewTask({ ...newTask, checklist: [...(newTask.checklist||[]), { id: uid(), text: newChecklistItemText.trim(), done: false }] });
+    setNewChecklistItemText('');
+  };
+
+  const removeChecklistItemFromNew = (id) => {
+    setNewTask({ ...newTask, checklist: newTask.checklist.filter(c => c.id !== id) });
   };
 
   const saveEditTask = () => {
     if (!editTaskItem.name.trim()) return;
     dispatch({ type:'EDIT_TASK', task:editTaskItem });
     setEditTaskItem(null);
+    setEditChecklistItemText('');
+  };
+
+  const addChecklistItemToEdit = () => {
+    if (!editChecklistItemText.trim()) return;
+    setEditTaskItem({ ...editTaskItem, checklist: [...(editTaskItem.checklist||[]), { id: uid(), text: editChecklistItemText.trim(), done: false }] });
+    setEditChecklistItemText('');
+  };
+
+  const removeChecklistItemFromEdit = (id) => {
+    setEditTaskItem({ ...editTaskItem, checklist: editTaskItem.checklist.filter(c => c.id !== id) });
   };
 
   const toggleExpand = (id) => {
@@ -1125,6 +1177,105 @@ function TasksTab({ state, dispatch }) {
     if (p === 'urgentes')    return 'bg-secondary-fixed/60 text-on-secondary-fixed';
     if (p === 'importantes') return 'bg-primary-fixed/60 text-on-primary-fixed';
     return 'bg-surface-container-high text-on-surface-variant';
+  };
+
+  const renderTaskItem = (task, index, taskCategory) => {
+    const isDragged = index !== null && draggedIndex === index;
+    const ageDays = Math.floor((Date.now() - new Date(task.createdAt)) / 86400000);
+    const isOverdueUrgente = task.priority === 'urgentes' && ageDays > 2;
+    const isOverdueImportante = task.priority === 'importantes' && ageDays > 10;
+    const isOverdue = !task.done && (isOverdueUrgente || isOverdueImportante);
+    const taskBgClass = isOverdue ? 'bg-error-container/30 border-error/50' : 'bg-surface-container-lowest border-outline-variant/20';
+
+    return (
+      <div key={task.id}
+        draggable={filterCat !== 'todas'}
+        onDragStart={(e) => {
+          if (filterCat === 'todas') return;
+          setDraggedIndex(index);
+          e.dataTransfer.effectAllowed = "move";
+        }}
+        onDragOver={(e) => { e.preventDefault(); }}
+        onDragEnter={(e) => {
+          if (filterCat === 'todas') return;
+          if (draggedIndex !== null && draggedIndex !== index) {
+            handleMoveTask(draggedIndex, index);
+            setDraggedIndex(index);
+          }
+        }}
+        onDragEnd={() => setDraggedIndex(null)}
+        className={`group flex flex-col p-4 rounded-xl border hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : taskBgClass}`}>
+        <div className="flex items-center gap-3 w-full">
+          {filterCat !== 'todas' && <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none shrink-0">drag_indicator</span>}
+          <label className="relative flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" checked={task.done}
+              onChange={() => dispatch({ type:'TOGGLE_TASK', taskId:task.id })}
+              className="w-5 h-5 rounded-full border-outline-variant accent-primary cursor-pointer" />
+          </label>
+          <div className="flex-1 min-w-0 flex items-center justify-between cursor-pointer" onClick={() => toggleExpand(task.id)}>
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="min-w-0">
+                <p className={`text-body-md font-medium text-on-surface truncate ${task.done ? 'task-checked' : ''}`}>{task.name}</p>
+                <span className="text-label-sm text-outline block mt-0.5">{task.createdAt}</span>
+              </div>
+              {/* Checklist indicators */}
+              {task.checklist && task.checklist.length > 0 && (
+                <div className="flex gap-1 items-center bg-surface-container-low px-2 py-1 rounded-full border border-outline-variant/20 shrink-0">
+                  {task.checklist.map((chk, i) => (
+                    <div key={i} className={`w-2.5 h-2.5 rounded-full ${chk.done ? 'bg-surface-variant' : ''}`} style={{ backgroundColor: chk.done ? undefined : (taskCategory?.color || '#ccc') }}></div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span className={`material-symbols-outlined text-on-surface-variant transition-transform ${expandedTasks[task.id] ? 'rotate-180' : ''}`}>expand_more</span>
+          </div>
+          <div className="flex items-center gap-2 ml-2 shrink-0">
+            <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)} hidden sm:block`}>
+              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+            </span>
+            <button onClick={() => setEditTaskItem(task)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-primary active:scale-90 p-1 hidden md:block">
+              <span className="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+            <button onClick={() => dispatch({ type:'DELETE_TASK', taskId:task.id })}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-error active:scale-90 p-1">
+              <span className="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Expanded Description Area */}
+        {expandedTasks[task.id] && (
+          <div className={`mt-3 pr-2 ${filterCat !== 'todas' ? 'pl-11' : 'pl-4'}`}>
+            {task.description && <p className="text-body-md text-on-surface-variant/80 whitespace-pre-wrap mb-3">{task.description}</p>}
+            
+            {/* Checklist inside expanded view */}
+            {task.checklist && task.checklist.length > 0 && (
+              <div className="space-y-1.5 mb-2">
+                {task.checklist.map(chk => (
+                  <label key={chk.id} className="flex items-start gap-2 cursor-pointer group/chk">
+                    <input type="checkbox" checked={chk.done}
+                      onChange={() => dispatch({ type: 'TOGGLE_TASK_CHECKLIST_ITEM', taskId: task.id, itemId: chk.id })}
+                      className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/50 cursor-pointer" />
+                    <span className={`text-body-md transition-colors ${chk.done ? 'text-on-surface-variant/50 line-through' : 'text-on-surface-variant'}`}>{chk.text}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-2 flex md:hidden items-center justify-between">
+               <button onClick={() => setEditTaskItem(task)}
+                 className="flex items-center gap-1 text-label-md text-primary font-bold">
+                 <span className="material-symbols-outlined text-[16px]">edit</span> Editar Tarea
+               </button>
+               <span className={`px-2 py-0.5 rounded text-[10px] ${priorityBadge(task.priority)}`}>
+                 {task.priority.toUpperCase()}
+               </span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -1195,74 +1346,31 @@ function TasksTab({ state, dispatch }) {
             <p className="text-body-md">No hay tareas que coincidan</p>
           </div>
         )}
-        {filtered.map((task, index) => {
-          const isDragged = draggedIndex === index;
-          const ageDays = Math.floor((Date.now() - new Date(task.createdAt)) / 86400000);
-          const isOverdueUrgente = task.priority === 'urgentes' && ageDays > 2;
-          const isOverdueImportante = task.priority === 'importantes' && ageDays > 10;
-          const isOverdue = !task.done && (isOverdueUrgente || isOverdueImportante);
-          const taskBgClass = isOverdue ? 'bg-error-container/30 border-error/50' : 'bg-surface-container-lowest border-outline-variant/20';
-
-          return (
-            <div key={task.id}
-              draggable
-              onDragStart={(e) => {
-                setDraggedIndex(index);
-                e.dataTransfer.effectAllowed = "move";
-              }}
-              onDragOver={(e) => { e.preventDefault(); }}
-              onDragEnter={(e) => {
-                if (draggedIndex !== null && draggedIndex !== index) {
-                  handleMoveTask(draggedIndex, index);
-                  setDraggedIndex(index);
-                }
-              }}
-              onDragEnd={() => setDraggedIndex(null)}
-              className={`group flex flex-col p-4 rounded-xl border hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : taskBgClass}`}>
-              <div className="flex items-center gap-3 w-full">
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none shrink-0">drag_indicator</span>
-                <label className="relative flex items-center cursor-pointer shrink-0">
-                  <input type="checkbox" checked={task.done}
-                    onChange={() => dispatch({ type:'TOGGLE_TASK', taskId:task.id })}
-                    className="w-5 h-5 rounded-full border-outline-variant accent-primary cursor-pointer" />
-                </label>
-                <div className="flex-1 min-w-0 flex items-center justify-between cursor-pointer" onClick={() => toggleExpand(task.id)}>
-                  <div>
-                    <p className={`text-body-md font-medium text-on-surface truncate ${task.done ? 'task-checked' : ''}`}>{task.name}</p>
-                    <span className="text-label-sm text-outline block mt-0.5">{task.createdAt}</span>
-                  </div>
-                  <span className={`material-symbols-outlined text-on-surface-variant transition-transform ${expandedTasks[task.id] ? 'rotate-180' : ''}`}>expand_more</span>
+        
+        {filterCat === 'todas' ? (
+          categories.map(c => {
+            const catTasks = filtered.filter(t => t.category === c.id);
+            if (catTasks.length === 0) return null;
+            
+            const priorityOrder = { urgentes: 1, importantes: 2, otras: 3 };
+            const sortedTasks = [...catTasks].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+            
+            return (
+              <div key={`cat-group-${c.id}`} className="mb-6 last:mb-0">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: c.color }}></span>
+                  <h3 className="text-label-lg font-bold text-on-surface uppercase tracking-wider">{c.name}</h3>
+                  <div className="h-px bg-outline-variant/30 flex-1 ml-2"></div>
                 </div>
-                <div className="flex items-center gap-2 ml-2 shrink-0">
-                  <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)}`}>
-                    {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-                  </span>
-                  <button onClick={() => setEditTaskItem(task)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-primary active:scale-90 p-1 hidden md:block">
-                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                  </button>
-                  <button onClick={() => dispatch({ type:'DELETE_TASK', taskId:task.id })}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity text-error active:scale-90 p-1">
-                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                  </button>
+                <div className="space-y-3">
+                  {sortedTasks.map(task => renderTaskItem(task, null, c))}
                 </div>
               </div>
-              
-              {/* Expanded Description Area */}
-              {expandedTasks[task.id] && (
-                <div className="mt-3 pl-11 pr-2">
-                  <p className="text-body-md text-on-surface-variant/80 whitespace-pre-wrap">{task.description || 'Sin descripción.'}</p>
-                  <div className="mt-2 flex md:hidden">
-                     <button onClick={() => setEditTaskItem(task)}
-                       className="flex items-center gap-1 text-label-md text-primary font-bold">
-                       <span className="material-symbols-outlined text-[16px]">edit</span> Editar Tarea
-                     </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          filtered.map((task, index) => renderTaskItem(task, index, categories.find(c => c.id === task.category)))
+        )}
       </div>
 
       {/* FAB */}
@@ -1330,7 +1438,34 @@ function TasksTab({ state, dispatch }) {
                 <textarea value={newTask.description} onChange={e => setNewTask({...newTask, description:e.target.value})}
                   placeholder="Detalles de la tarea..."
                   rows="2"
-                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none" />
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none mb-4" />
+              </div>
+              
+              {/* Checklist Management */}
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Lista de Chequeo (Subtareas)</label>
+                {newTask.checklist && newTask.checklist.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {newTask.checklist.map(chk => (
+                      <div key={chk.id} className="flex items-center justify-between bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/30">
+                        <span className="text-body-md text-on-surface truncate pr-2">{chk.text}</span>
+                        <button onClick={() => removeChecklistItemFromNew(chk.id)} className="text-on-surface-variant hover:text-error transition-colors p-1">
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input value={newChecklistItemText} onChange={e => setNewChecklistItemText(e.target.value)}
+                    onKeyDown={e => { if(e.key==='Enter') { e.preventDefault(); addChecklistItemToNew(); } }}
+                    placeholder="Añadir subtarea..."
+                    className="flex-1 border border-outline-variant/50 rounded-lg px-3 py-1.5 focus:border-primary focus:ring-1 focus:ring-primary bg-transparent outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors" />
+                  <button onClick={addChecklistItemToNew}
+                    className="bg-primary/10 text-primary px-3 rounded-lg hover:bg-primary/20 transition-colors font-medium text-label-md flex items-center">
+                    Añadir
+                  </button>
+                </div>
               </div>
             </div>
             <button onClick={addTask}
@@ -1393,7 +1528,34 @@ function TasksTab({ state, dispatch }) {
                 <textarea value={editTaskItem.description || ''} onChange={e => setEditTaskItem({...editTaskItem, description:e.target.value})}
                   placeholder="Detalles de la tarea..."
                   rows="3"
-                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none" />
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none mb-4" />
+              </div>
+
+              {/* Edit Checklist Management */}
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Lista de Chequeo (Subtareas)</label>
+                {editTaskItem.checklist && editTaskItem.checklist.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {editTaskItem.checklist.map(chk => (
+                      <div key={chk.id} className="flex items-center justify-between bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/30">
+                        <span className={`text-body-md truncate pr-2 ${chk.done ? 'line-through text-on-surface-variant/50' : 'text-on-surface'}`}>{chk.text}</span>
+                        <button onClick={() => removeChecklistItemFromEdit(chk.id)} className="text-on-surface-variant hover:text-error transition-colors p-1">
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input value={editChecklistItemText} onChange={e => setEditChecklistItemText(e.target.value)}
+                    onKeyDown={e => { if(e.key==='Enter') { e.preventDefault(); addChecklistItemToEdit(); } }}
+                    placeholder="Añadir subtarea..."
+                    className="flex-1 border border-outline-variant/50 rounded-lg px-3 py-1.5 focus:border-primary focus:ring-1 focus:ring-primary bg-transparent outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors" />
+                  <button onClick={addChecklistItemToEdit}
+                    className="bg-primary/10 text-primary px-3 rounded-lg hover:bg-primary/20 transition-colors font-medium text-label-md flex items-center">
+                    Añadir
+                  </button>
+                </div>
               </div>
             </div>
             <button onClick={saveEditTask}
@@ -1759,7 +1921,7 @@ function SettingsTab({ state, dispatch, user, setAuthModal, forceSync, dbLoading
       {/* Appearance */}
       <section>
         <h2 className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Apariencia</h2>
-        <div className="grid grid-cols-2 gap-md">
+        <div className="grid grid-cols-2 gap-md mb-lg">
           {[['light','Claro','light_mode'], ['dark','Oscuro','dark_mode']].map(([val, label, icon]) => (
             <button key={val} onClick={() => dispatch({ type:'SET_THEME', theme:val })}
               className={`relative flex flex-col gap-sm p-base border-2 rounded-xl overflow-hidden transition-all active:scale-95 ${
@@ -1776,6 +1938,19 @@ function SettingsTab({ state, dispatch, user, setAuthModal, forceSync, dbLoading
               )}
             </button>
           ))}
+        </div>
+
+        <div>
+          <label className="text-label-md text-on-surface-variant block mb-3 font-bold">Color de Barra de Progreso (Hitos)</label>
+          <div className="flex gap-3 flex-wrap">
+            {['#ffddb8', '#fca5a5', '#fcd34d', '#86efac', '#67e8f9', '#93c5fd', '#d8b4fe', '#f9a8d4'].map(color => (
+              <button key={color} onClick={() => dispatch({ type:'SET_PROGRESS_COLOR', color })}
+                className="w-10 h-10 rounded-full border border-outline-variant/30 relative flex items-center justify-center transition-transform hover:scale-110 shadow-sm"
+                style={{ backgroundColor: color }}>
+                {(state.progressBarColor || '#ffddb8') === color && <span className="material-symbols-outlined text-[20px] text-black/60 font-bold mix-blend-color-burn">check</span>}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -1830,6 +2005,21 @@ function reducer(state, action) {
     case 'ADD_TASK':    return { ...state, tasks: [action.task, ...state.tasks] };
     case 'EDIT_TASK':   return { ...state, tasks: state.tasks.map(t => t.id === action.task.id ? action.task : t) };
     case 'TOGGLE_TASK': return { ...state, tasks: state.tasks.map(t => t.id===action.taskId ? {...t,done:!t.done} : t) };
+    case 'TOGGLE_TASK_CHECKLIST_ITEM': {
+      const { taskId, itemId } = action;
+      return {
+        ...state,
+        tasks: state.tasks.map(t => {
+          if (t.id === taskId) {
+            const checklist = t.checklist ? [...t.checklist] : [];
+            const idx = checklist.findIndex(c => c.id === itemId);
+            if (idx >= 0) checklist[idx] = { ...checklist[idx], done: !checklist[idx].done };
+            return { ...t, checklist };
+          }
+          return t;
+        })
+      };
+    }
     case 'DELETE_TASK': return { ...state, tasks: state.tasks.filter(t => t.id!==action.taskId) };
     case 'MOVE_TASK': {
       const { fromIndex, toIndex } = action;
@@ -1857,6 +2047,7 @@ function reducer(state, action) {
       if (action.theme === 'dark') html.classList.add('dark'); else html.classList.remove('dark');
       return { ...state, theme:action.theme };
     }
+    case 'SET_PROGRESS_COLOR': return { ...state, progressBarColor: action.color };
     case 'IMPORT': return { ...INITIAL_STATE, ...action.data };
     case 'RESET':  return { ...INITIAL_STATE };
     default: return state;
