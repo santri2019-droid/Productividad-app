@@ -33,54 +33,54 @@
     theme: {
       extend: {
         colors: {
-          'primary':                    '#000000',
-          'on-primary':                 '#ffffff',
-          'primary-container':          '#1b1b1e',
-          'on-primary-container':       '#858387',
-          'primary-fixed':              '#e4e1e6',
-          'primary-fixed-dim':          '#c8c5ca',
-          'on-primary-fixed':           '#1b1b1e',
-          'on-primary-fixed-variant':   '#47464a',
-          'secondary':                  '#855300',
-          'on-secondary':               '#ffffff',
-          'secondary-container':        '#fea619',
-          'on-secondary-container':     '#684000',
-          'secondary-fixed':            '#ffddb8',
-          'secondary-fixed-dim':        '#ffb95f',
-          'on-secondary-fixed':         '#2a1700',
-          'on-secondary-fixed-variant': '#653e00',
-          'tertiary':                   '#000000',
-          'tertiary-container':         '#1d1b16',
-          'tertiary-fixed':             '#e8e2d9',
-          'tertiary-fixed-dim':         '#cbc6bd',
-          'on-tertiary':                '#ffffff',
-          'on-tertiary-container':      '#88837c',
-          'on-tertiary-fixed':          '#1d1b16',
-          'on-tertiary-fixed-variant':  '#494640',
-          'error':                      '#ba1a1a',
-          'error-container':            '#ffdad6',
-          'on-error':                   '#ffffff',
-          'on-error-container':         '#93000a',
-          'surface':                    '#fbf8ff',
-          'surface-dim':                '#dad9e3',
-          'surface-bright':             '#fbf8ff',
-          'surface-container-lowest':   '#ffffff',
-          'surface-container-low':      '#f4f2fd',
-          'surface-container':          '#eeedf7',
-          'surface-container-high':     '#e8e7f1',
-          'surface-container-highest':  '#e3e1ec',
-          'surface-variant':            '#e3e1ec',
-          'surface-tint':               '#5f5e61',
-          'on-surface':                 '#1a1b22',
-          'on-surface-variant':         '#47464b',
-          'outline':                    '#77767b',
-          'outline-variant':            '#c8c5cb',
-          'background':                 '#fbf8ff',
-          'on-background':              '#1a1b22',
-          'inverse-surface':            '#2f3038',
-          'inverse-on-surface':         '#f1effa',
-          'inverse-primary':            '#c8c5ca',
-          'success':                    '#00C853',
+          'primary': 'var(--color-primary)',
+          'on-primary': 'var(--color-on-primary)',
+          'primary-container': 'var(--color-primary-container)',
+          'on-primary-container': 'var(--color-on-primary-container)',
+          'primary-fixed': 'var(--color-primary-fixed)',
+          'primary-fixed-dim': 'var(--color-primary-fixed-dim)',
+          'on-primary-fixed': 'var(--color-on-primary-fixed)',
+          'on-primary-fixed-variant': 'var(--color-on-primary-fixed-variant)',
+          'secondary': 'var(--color-secondary)',
+          'on-secondary': 'var(--color-on-secondary)',
+          'secondary-container': 'var(--color-secondary-container)',
+          'on-secondary-container': 'var(--color-on-secondary-container)',
+          'secondary-fixed': 'var(--color-secondary-fixed)',
+          'secondary-fixed-dim': 'var(--color-secondary-fixed-dim)',
+          'on-secondary-fixed': 'var(--color-on-secondary-fixed)',
+          'on-secondary-fixed-variant': 'var(--color-on-secondary-fixed-variant)',
+          'tertiary': 'var(--color-tertiary)',
+          'tertiary-container': 'var(--color-tertiary-container)',
+          'tertiary-fixed': 'var(--color-tertiary-fixed)',
+          'tertiary-fixed-dim': 'var(--color-tertiary-fixed-dim)',
+          'on-tertiary': 'var(--color-on-tertiary)',
+          'on-tertiary-container': 'var(--color-on-tertiary-container)',
+          'on-tertiary-fixed': 'var(--color-on-tertiary-fixed)',
+          'on-tertiary-fixed-variant': 'var(--color-on-tertiary-fixed-variant)',
+          'error': 'var(--color-error)',
+          'error-container': 'var(--color-error-container)',
+          'on-error': 'var(--color-on-error)',
+          'on-error-container': 'var(--color-on-error-container)',
+          'surface': 'var(--color-surface)',
+          'surface-dim': 'var(--color-surface-dim)',
+          'surface-bright': 'var(--color-surface-bright)',
+          'surface-container-lowest': 'var(--color-surface-container-lowest)',
+          'surface-container-low': 'var(--color-surface-container-low)',
+          'surface-container': 'var(--color-surface-container)',
+          'surface-container-high': 'var(--color-surface-container-high)',
+          'surface-container-highest': 'var(--color-surface-container-highest)',
+          'surface-variant': 'var(--color-surface-variant)',
+          'surface-tint': 'var(--color-surface-tint)',
+          'on-surface': 'var(--color-on-surface)',
+          'on-surface-variant': 'var(--color-on-surface-variant)',
+          'outline': 'var(--color-outline)',
+          'outline-variant': 'var(--color-outline-variant)',
+          'background': 'var(--color-background)',
+          'on-background': 'var(--color-on-background)',
+          'inverse-surface': 'var(--color-inverse-surface)',
+          'inverse-on-surface': 'var(--color-inverse-on-surface)',
+          'inverse-primary': 'var(--color-inverse-primary)',
+          'success': 'var(--color-success)',
         },
         spacing: {
           'xs':   '4px',
@@ -125,10 +125,110 @@
     min-height: 100dvh;
     overscroll-behavior: none;
   }
-  /* Dark Mode */
-  html.dark body { background-color: #111113; color: #e3e1ec; }
-  html.dark .dark\:bg-surface { background-color: #1a1b22; }
+  /* CSS Variables */
+  :root {
+    --color-primary: #000000;
+    --color-on-primary: #ffffff;
+    --color-primary-container: #1b1b1e;
+    --color-on-primary-container: #858387;
+    --color-primary-fixed: #e4e1e6;
+    --color-primary-fixed-dim: #c8c5ca;
+    --color-on-primary-fixed: #1b1b1e;
+    --color-on-primary-fixed-variant: #47464a;
+    --color-secondary: #855300;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #fea619;
+    --color-on-secondary-container: #684000;
+    --color-secondary-fixed: #ffddb8;
+    --color-secondary-fixed-dim: #ffb95f;
+    --color-on-secondary-fixed: #2a1700;
+    --color-on-secondary-fixed-variant: #653e00;
+    --color-tertiary: #000000;
+    --color-tertiary-container: #1d1b16;
+    --color-tertiary-fixed: #e8e2d9;
+    --color-tertiary-fixed-dim: #cbc6bd;
+    --color-on-tertiary: #ffffff;
+    --color-on-tertiary-container: #88837c;
+    --color-on-tertiary-fixed: #1d1b16;
+    --color-on-tertiary-fixed-variant: #494640;
+    --color-error: #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-on-error: #ffffff;
+    --color-on-error-container: #93000a;
+    --color-surface: #fbf8ff;
+    --color-surface-dim: #dad9e3;
+    --color-surface-bright: #fbf8ff;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f4f2fd;
+    --color-surface-container: #eeedf7;
+    --color-surface-container-high: #e8e7f1;
+    --color-surface-container-highest: #e3e1ec;
+    --color-surface-variant: #e3e1ec;
+    --color-surface-tint: #5f5e61;
+    --color-on-surface: #1a1b22;
+    --color-on-surface-variant: #47464b;
+    --color-outline: #77767b;
+    --color-outline-variant: #c8c5cb;
+    --color-background: #fbf8ff;
+    --color-on-background: #1a1b22;
+    --color-inverse-surface: #2f3038;
+    --color-inverse-on-surface: #f1effa;
+    --color-inverse-primary: #c8c5ca;
+    --color-success: #00C853;
+  }
+  html.dark {
+    --color-primary: #ffb95f;
+    --color-on-primary: #2a1700;
+    --color-primary-container: #1b1b1e;
+    --color-on-primary-container: #858387;
+    --color-primary-fixed: #e4e1e6;
+    --color-primary-fixed-dim: #c8c5ca;
+    --color-on-primary-fixed: #1b1b1e;
+    --color-on-primary-fixed-variant: #47464a;
+    --color-secondary: #855300;
+    --color-on-secondary: #ffffff;
+    --color-secondary-container: #fea619;
+    --color-on-secondary-container: #684000;
+    --color-secondary-fixed: #ffddb8;
+    --color-secondary-fixed-dim: #ffb95f;
+    --color-on-secondary-fixed: #2a1700;
+    --color-on-secondary-fixed-variant: #653e00;
+    --color-tertiary: #000000;
+    --color-tertiary-container: #1d1b16;
+    --color-tertiary-fixed: #e8e2d9;
+    --color-tertiary-fixed-dim: #cbc6bd;
+    --color-on-tertiary: #ffffff;
+    --color-on-tertiary-container: #88837c;
+    --color-on-tertiary-fixed: #1d1b16;
+    --color-on-tertiary-fixed-variant: #494640;
+    --color-error: #ba1a1a;
+    --color-error-container: #ffdad6;
+    --color-on-error: #ffffff;
+    --color-on-error-container: #93000a;
+    --color-surface: #1a1b22;
+    --color-surface-dim: #3a3b45;
+    --color-surface-bright: #1a1b22;
+    --color-surface-container-lowest: #1a1b22;
+    --color-surface-container-low: #22232b;
+    --color-surface-container: #22232b;
+    --color-surface-container-high: #2a2b34;
+    --color-surface-container-highest: #2a2b34;
+    --color-surface-variant: #2a2b34;
+    --color-surface-tint: #5f5e61;
+    --color-on-surface: #e3e1ec;
+    --color-on-surface-variant: #c8c5cb;
+    --color-outline: #8f8f96;
+    --color-outline-variant: #44444a;
+    --color-background: #1a1b22;
+    --color-on-background: #e3e1ec;
+    --color-inverse-surface: #2f3038;
+    --color-inverse-on-surface: #f1effa;
+    --color-inverse-primary: #c8c5ca;
+    --color-success: #00C853;
+  }
 
+  /* Dark Mode Body */
+  html.dark body { background-color: var(--color-background); color: var(--color-on-background); }
   /* Material Symbols */
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -227,20 +327,30 @@ const DEFAULT_ITEMS = [
 ];
 
 const DEFAULT_TASKS = [
-  { id:'t1', name:'Revisión de diseño UI',       category:'trabajo',   priority:'urgentes',   done:false, createdAt:'2026-05-12' },
-  { id:'t2', name:'Actualizar repositorio',       category:'proyecto',  priority:'importantes',done:true,  createdAt:'2026-05-10' },
-  { id:'t3', name:'Llamar al banco',              category:'personal',  priority:'otras',      done:false, createdAt:'2026-05-13' },
-  { id:'t4', name:'Preparar presentación equipo', category:'trabajo',   priority:'urgentes',   done:false, createdAt:'2026-05-14' },
-  { id:'t5', name:'Revisar pipeline CI/CD',       category:'proyecto',  priority:'importantes',done:false, createdAt:'2026-05-11' },
+  { id:'t1', name:'Revisión de diseño UI',        category:'trabajo',  priority:'urgentes',   done:false, createdAt:'2026-05-12', checklist: [] },
+  { id:'t2', name:'Actualizar repositorio',       category:'proyecto', priority:'importantes',done:true,  createdAt:'2026-05-10', checklist: [] },
+  { id:'t3', name:'Llamar al banco',              category:'personal', priority:'otras',      done:false, createdAt:'2026-05-13', checklist: [] },
+  { id:'t4', name:'Preparar presentación equipo', category:'trabajo',  priority:'urgentes',   done:false, createdAt:'2026-05-14', checklist: [] },
+  { id:'t5', name:'Revisar pipeline CI/CD',       category:'proyecto', priority:'importantes',done:false, createdAt:'2026-05-11', checklist: [] },
+];
+
+const DEFAULT_CATEGORIES = [
+  { id: 'personal', name: 'Personal', color: '#10b981' }, // emerald-500
+  { id: 'trabajo',  name: 'Trabajo',  color: '#3b82f6' }, // blue-500
+  { id: 'salud',    name: 'Salud',    color: '#ef4444' }, // red-500
+  { id: 'finanzas', name: 'Finanzas', color: '#f59e0b' }, // amber-500
+  { id: 'proyecto', name: 'Proyecto', color: '#8b5cf6' }, // violet-500
 ];
 
 const INITIAL_STATE = {
+  categories: DEFAULT_CATEGORIES,
   items:   DEFAULT_ITEMS,
   history: {},
   tasks:   DEFAULT_TASKS,
   theme:   'light',
   year:    new Date().getFullYear(),
   month:   new Date().getMonth(),
+  progressBarColor: '#ffddb8',
 };
 
 // ─── STORAGE ─────────────────────────────────────────────────────────────────
@@ -504,21 +614,35 @@ function HomeTab({ state, setTab }) {
         </div>
         <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-xl overflow-hidden divide-y divide-outline-variant/20">
           {[
-            { label:'URGENTES',    count:tasksByPriority.urgentes.length,    days: tasksByPriority.urgentes[0] ? Math.floor((Date.now() - new Date(tasksByPriority.urgentes[0].createdAt)) / 86400000) : 0, bg:'bg-secondary-fixed/60', text:'text-on-secondary-fixed' },
-            { label:'IMPORTANTES', count:tasksByPriority.importantes.length, days: tasksByPriority.importantes[0] ? Math.floor((Date.now() - new Date(tasksByPriority.importantes[0].createdAt)) / 86400000) : 0, bg:'bg-primary-fixed/60', text:'text-on-primary-fixed' },
-            { label:'OTRAS',       count:tasksByPriority.otras.length,       days: tasksByPriority.otras[0] ? Math.floor((Date.now() - new Date(tasksByPriority.otras[0].createdAt)) / 86400000) : 0, bg:'bg-surface-container-high', text:'text-on-surface-variant' },
-          ].map(row => (
-            <div key={row.label} className="flex items-center justify-between px-lg py-[14px] hover:bg-surface-container-low transition-colors">
-              <div className="flex items-center gap-4">
-                <span className={`text-label-sm px-2 py-1 rounded tracking-widest ${row.bg} ${row.text}`}>{row.label}</span>
-                <span className="text-display-lg leading-none text-primary font-bold">{row.count}</span>
+            { label:'URGENTES',    tasks:tasksByPriority.urgentes,    threshold: 2,  bg:'bg-secondary-fixed/60', text:'text-on-secondary-fixed' },
+            { label:'IMPORTANTES', tasks:tasksByPriority.importantes, threshold: 10, bg:'bg-primary-fixed/60', text:'text-on-primary-fixed' },
+            { label:'OTRAS',       tasks:tasksByPriority.otras,       threshold: 999,bg:'bg-surface-container-high', text:'text-on-surface-variant' },
+          ].map(row => {
+            const count = row.tasks.length;
+            const maxDays = count > 0 
+              ? Math.max(...row.tasks.map(t => Math.floor((Date.now() - new Date(t.createdAt)) / 86400000))) 
+              : 0;
+            const isOverdue = maxDays > row.threshold;
+            
+            const bgClass = isOverdue ? 'bg-error text-on-error' : row.bg + ' ' + row.text;
+            const rowClass = isOverdue ? 'bg-error-container/20' : 'hover:bg-surface-container-low';
+            const daysTextClass = isOverdue ? 'text-error font-bold' : 'text-on-surface';
+
+            return (
+              <div key={row.label} className={`flex items-center justify-between px-lg py-[14px] transition-colors ${rowClass}`}>
+                <div className="flex items-center gap-4">
+                  <span className={`text-label-sm px-2 py-1 rounded tracking-widest ${bgClass}`}>{row.label}</span>
+                  <span className="text-display-lg leading-none text-primary font-bold">{count}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-on-surface-variant/70">
+                  <span className={`material-symbols-outlined text-[18px] ${isOverdue ? 'text-error' : ''}`}>
+                    {isOverdue ? 'warning' : 'schedule'}
+                  </span>
+                  <span className="text-body-md">Max Días: <strong className={daysTextClass}>{maxDays}</strong></span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-on-surface-variant/70">
-                <span className="material-symbols-outlined text-[18px]">schedule</span>
-                <span className="text-body-md">Días: <strong className="text-on-surface">{row.days}</strong></span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </div>
@@ -537,8 +661,45 @@ function TrackerTab({ state, dispatch }) {
   const [editItem, setEditItem] = useState(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [newItemModal, setNewItemModal] = useState(false);
-  const [newItemForm, setNewItemForm] = useState({ name:'', category:'salud', hasValue:false });
+  const [newItemForm, setNewItemForm] = useState({ name:'', hasValue:false, goalValue: '' });
   const inputRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+
+  const progressByItem = useMemo(() => {
+    return items.map(it => {
+      let total = 0;
+      for (let d = 1; d <= days; d++) {
+        const key = formatKey(year, month, d);
+        const v = history[key]?.[it.id];
+        if (v !== undefined && v !== null && v !== false && v !== '') {
+          if (it.hasValue && typeof v === 'string') {
+            const n = parseFloat(v.replace(/[^\d.-]/g,''));
+            if (!isNaN(n)) total += n; else total++;
+          } else total++;
+        }
+      }
+      const goal = Number(it.goalValue);
+      const hasGoal = !isNaN(goal) && goal > 0;
+      let maxPossible;
+      if (it.hasValue) {
+        maxPossible = hasGoal ? goal : Math.max(total, 1);
+      } else {
+        maxPossible = hasGoal ? goal : days;
+      }
+      return { id: it.id, pct: Math.min(Math.round((total / maxPossible) * 100), 100) };
+    });
+  }, [items, history, year, month, days]);
+
+  useEffect(() => {
+    if (isCurrentMonth && scrollContainerRef.current) {
+      const el = document.getElementById(`day-col-${now.getDate()}`);
+      if (el) {
+        // center the column
+        const container = scrollContainerRef.current;
+        container.scrollTo({ left: el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
+      }
+    }
+  }, [isCurrentMonth]);
 
   const getVal = (dateStr, itemId) => {
     return history[dateStr]?.[itemId] ?? null;
@@ -546,6 +707,12 @@ function TrackerTab({ state, dispatch }) {
   const isCompleted = v => v !== undefined && v !== null && v !== false && v !== '';
 
   const handleCellClick = (dateStr, item) => {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const cellDate = new Date(y, m - 1, d);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (cellDate > today) return; // Cannot edit future days
+
     if (item.hasValue) {
       const cur = getVal(dateStr, item.id);
       setValueInput(cur === true ? '' : (cur || ''));
@@ -574,7 +741,7 @@ function TrackerTab({ state, dispatch }) {
     if (!newItemForm.name.trim()) return;
     dispatch({ type:'ADD_ITEM', item:{ id:uid(), ...newItemForm } });
     setNewItemModal(false);
-    setNewItemForm({ name:'', category:'salud', hasValue:false });
+    setNewItemForm({ name:'', hasValue:false, goalValue: '' });
   };
 
   const saveEditItem = () => {
@@ -631,7 +798,7 @@ function TrackerTab({ state, dispatch }) {
 
       {/* Table */}
       <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl overflow-hidden">
-        <div className="overflow-x-auto no-scrollbar">
+        <div className="overflow-x-auto no-scrollbar" ref={scrollContainerRef}>
           <table className="border-collapse" style={{ minWidth: `${80 + days * 44}px` }}>
             <thead>
               <tr className="border-b border-outline-variant/30">
@@ -643,10 +810,10 @@ function TrackerTab({ state, dispatch }) {
                   const dow = new Date(year, month, d).getDay();
                   const isToday = isCurrentMonth && d === now.getDate();
                   return (
-                    <th key={d} className={`px-1 py-sm text-center min-w-[40px] ${isToday ? 'bg-primary' : ''}`}>
+                    <th key={d} id={`day-col-${d}`} className={`px-1 py-sm text-center min-w-[40px] transition-colors ${isToday ? 'bg-surface-container-highest' : ''}`}>
                       <div className="flex flex-col items-center gap-0.5">
-                        <span className={`text-[10px] font-medium ${isToday ? 'text-on-primary' : 'text-on-surface-variant/60'}`}>{DAYS_ES[dow][0]}</span>
-                        <span className={`text-label-md font-bold ${isToday ? 'text-on-primary' : 'text-on-surface-variant'}`}>{d}</span>
+                        <span className={`text-[10px] font-medium ${isToday ? 'text-on-surface font-bold' : 'text-on-surface-variant/60'}`}>{DAYS_ES[dow][0]}</span>
+                        <span className={`text-label-md font-bold ${isToday ? 'text-on-surface text-[16px]' : 'text-on-surface-variant'}`}>{d}</span>
                       </div>
                     </th>
                   );
@@ -676,12 +843,14 @@ function TrackerTab({ state, dispatch }) {
                     className={`border-b border-outline-variant/10 last:border-b-0 transition-opacity ${isDragged ? 'opacity-40 bg-surface-container-low' : ''}`}>
                     <td className="sticky left-0 bg-surface-container-lowest z-10 px-sm py-[10px] border-r border-outline-variant/20 whitespace-nowrap">
                       <div className="flex items-center justify-between gap-1">
-                        <div className="flex items-center gap-1 min-w-0">
-                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none">drag_indicator</span>
-                          <span className="text-body-md font-medium text-on-surface truncate">{item.name}</span>
+                        <div className="flex items-center gap-1 min-w-0 relative py-1 px-1 -ml-1">
+                          <div className="absolute inset-y-0 left-0 rounded-sm transition-all duration-500 z-0"
+                            style={{ width: `${progressByItem.find(p => p.id === item.id)?.pct || 0}%`, backgroundColor: state.progressBarColor || '#ffddb8' }}></div>
+                          <span className="material-symbols-outlined text-[18px] text-on-surface-variant/60 cursor-grab active:cursor-grabbing select-none relative z-10 mix-blend-multiply dark:mix-blend-screen">drag_indicator</span>
+                          <span className="text-body-md font-medium text-on-surface truncate relative z-10 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)] dark:drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)]">{item.name}</span>
                         </div>
                         <button onClick={() => setEditItem({...item, index})}
-                          className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded">
+                          className="opacity-30 hover:opacity-100 transition-opacity p-0.5 rounded relative z-10">
                           <span className="material-symbols-outlined text-[16px] text-on-surface-variant">settings</span>
                         </button>
                       </div>
@@ -692,8 +861,9 @@ function TrackerTab({ state, dispatch }) {
                     const v = getVal(dateStr, item.id);
                     const done = isCompleted(v);
                     const isVal = item.hasValue && typeof v === 'string';
+                    const isToday = isCurrentMonth && d === now.getDate();
                     return (
-                      <td key={d} className="px-[3px] py-[6px] text-center">
+                      <td key={d} className={`px-[3px] py-[6px] text-center transition-colors ${isToday ? 'bg-surface-container-highest' : ''}`}>
                         <div className="tracker-cell flex items-center justify-center w-[34px] h-[34px] mx-auto rounded-lg"
                           onClick={() => handleCellClick(dateStr, item)}
                           onDoubleClick={() => { setValueInput(v === true ? '' : (v || '')); setValueModal({ dateStr, item }); }}>
@@ -720,11 +890,10 @@ function TrackerTab({ state, dispatch }) {
 
       {/* Value Modal */}
       {valueModal && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           onClick={e => { if (e.target === e.currentTarget) setValueModal(null); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
-            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-lg md:hidden"></div>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
             <h3 className="font-headline-md text-primary mb-1">Registrar Valor</h3>
             <p className="text-label-md text-on-surface-variant mb-lg">{valueModal.item.name} · {valueModal.dateStr}</p>
             <input ref={inputRef}
@@ -754,12 +923,16 @@ function TrackerTab({ state, dispatch }) {
 
       {/* New Item Modal */}
       {newItemModal && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           onClick={e => { if (e.target === e.currentTarget) setNewItemModal(false); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
-            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-lg md:hidden"></div>
-            <h3 className="font-headline-md text-primary mb-lg">Nuevo Hito</h3>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-primary">Nuevo Hito</h3>
+              <button type="button" onClick={() => setNewItemModal(false)} className="p-1 rounded-full hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              </button>
+            </div>
             <div className="space-y-md">
               <div>
                 <label className="text-label-md text-on-surface-variant block mb-1">Nombre</label>
@@ -767,22 +940,21 @@ function TrackerTab({ state, dispatch }) {
                   placeholder="Ej: Meditación, Lectura..."
                   className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
               </div>
-              <div>
-                <label className="text-label-md text-on-surface-variant block mb-1">Categoría</label>
-                <select value={newItemForm.category} onChange={e => setNewItemForm({...newItemForm, category:e.target.value})}
-                  className="w-full bg-surface-container border border-outline-variant/50 rounded-xl px-md py-sm text-body-md text-on-surface focus:outline-none focus:border-primary">
-                  <option value="salud">💪 Salud</option>
-                  <option value="trabajo">💼 Trabajo</option>
-                  <option value="personal">🎯 Personal</option>
-                  <option value="finanzas">💰 Finanzas</option>
-                </select>
-              </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={newItemForm.hasValue}
                   onChange={e => setNewItemForm({...newItemForm, hasValue:e.target.checked})}
                   className="w-5 h-5 rounded accent-primary" />
                 <span className="text-body-md text-on-surface">Admite valores numéricos</span>
               </label>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-1">
+                  {newItemForm.hasValue ? 'Objetivo Mensual (Valor)' : 'Objetivo Mensual (Días)'}
+                </label>
+                <input type="number" value={newItemForm.goalValue} onChange={e => setNewItemForm({...newItemForm, goalValue:e.target.value})}
+                  placeholder={newItemForm.hasValue ? "Ej: 1000" : "Ej: 10"}
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
+                <p className="text-[10px] text-on-surface-variant mt-1">Se usará para calcular la tasa de completado.</p>
+              </div>
             </div>
             <div className="flex gap-sm mt-xl">
               <button onClick={() => setNewItemModal(false)}
@@ -800,27 +972,21 @@ function TrackerTab({ state, dispatch }) {
 
       {/* Edit Item Modal */}
       {editItem && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           onClick={e => { if (e.target === e.currentTarget) setEditItem(null); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
-            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-lg md:hidden"></div>
-            <h3 className="font-headline-md text-primary mb-lg">Editar Hito</h3>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-primary">Editar Hito</h3>
+              <button type="button" onClick={() => setEditItem(null)} className="p-1 rounded-full hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              </button>
+            </div>
             <div className="space-y-md">
               <div>
                 <label className="text-label-md text-on-surface-variant block mb-1">Nombre</label>
                 <input value={editItem.name} onChange={e => setEditItem({...editItem, name:e.target.value})}
                   className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
-              </div>
-              <div>
-                <label className="text-label-md text-on-surface-variant block mb-1">Categoría</label>
-                <select value={editItem.category} onChange={e => setEditItem({...editItem, category:e.target.value})}
-                  className="w-full bg-surface-container border border-outline-variant/50 rounded-xl px-md py-sm text-body-md text-on-surface focus:outline-none focus:border-primary">
-                  <option value="salud">💪 Salud</option>
-                  <option value="trabajo">💼 Trabajo</option>
-                  <option value="personal">🎯 Personal</option>
-                  <option value="finanzas">💰 Finanzas</option>
-                </select>
               </div>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" checked={editItem.hasValue}
@@ -828,6 +994,15 @@ function TrackerTab({ state, dispatch }) {
                   className="w-5 h-5 rounded accent-primary" />
                 <span className="text-body-md text-on-surface">Admite valores numéricos</span>
               </label>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-1">
+                  {editItem.hasValue ? 'Objetivo Mensual (Valor)' : 'Objetivo Mensual (Días)'}
+                </label>
+                <input type="number" value={editItem.goalValue || ''} onChange={e => setEditItem({...editItem, goalValue:e.target.value})}
+                  placeholder={editItem.hasValue ? "Ej: 1000" : "Ej: 10"}
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
+                <p className="text-[10px] text-on-surface-variant mt-1">Se usará para calcular la tasa de completado.</p>
+              </div>
             </div>
 
             {/* Reordenar posición */}
@@ -892,7 +1067,14 @@ function TasksTab({ state, dispatch }) {
   const [filterPri, setFilterPri] = useState('todas');
   const [showAdd, setShowAdd] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState(null);
-  const [newTask, setNewTask] = useState({ name:'', category:'trabajo', priority:'urgentes' });
+  const [newTask, setNewTask] = useState({ name:'', category:state.categories?.[0]?.id || 'trabajo', priority:'urgentes', description: '', checklist: [] });
+  const [newChecklistItemText, setNewChecklistItemText] = useState('');
+  const [editTaskItem, setEditTaskItem] = useState(null);
+  const [editChecklistItemText, setEditChecklistItemText] = useState('');
+  const [expandedTasks, setExpandedTasks] = useState({});
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const categories = state.categories || DEFAULT_CATEGORIES;
 
   const handleMoveTask = (filteredFromIndex, filteredToIndex) => {
     const fromTask = filtered[filteredFromIndex];
@@ -914,28 +1096,75 @@ function TasksTab({ state, dispatch }) {
 
   const distrib = useMemo(() => {
     const pending = tasks.filter(t => !t.done);
-    return {
-      trabajo:  pending.filter(t => t.category === 'trabajo').length,
-      proyecto: pending.filter(t => t.category === 'proyecto').length,
-      personal: pending.filter(t => t.category === 'personal').length,
-    };
-  }, [tasks]);
+    const dist = {};
+    categories.forEach(c => dist[c.id] = 0);
+    pending.forEach(t => {
+      if (dist[t.category] !== undefined) dist[t.category]++;
+    });
+    return dist;
+  }, [tasks, categories]);
 
-  const totalPending = distrib.trabajo + distrib.proyecto + distrib.personal;
-  const maxDist = Math.max(distrib.trabajo, distrib.proyecto, distrib.personal, 1);
+  const totalPending = Object.values(distrib).reduce((a,b) => a+b, 0);
+  const maxDist = Math.max(...Object.values(distrib), 1);
 
   const addTask = () => {
     if (!newTask.name.trim()) return;
     dispatch({ type:'ADD_TASK', task:{ id:uid(), ...newTask, done:false, createdAt:new Date().toISOString().slice(0,10) } });
-    setNewTask({ name:'', category:'trabajo', priority:'urgentes' });
+    setNewTask({ name:'', category:categories[0]?.id || 'trabajo', priority:'urgentes', description: '', checklist: [] });
+    setNewChecklistItemText('');
     setShowAdd(false);
+  };
+
+  const addChecklistItemToNew = () => {
+    if (!newChecklistItemText.trim()) return;
+    setNewTask({ ...newTask, checklist: [...(newTask.checklist||[]), { id: uid(), text: newChecklistItemText.trim(), done: false }] });
+    setNewChecklistItemText('');
+  };
+
+  const removeChecklistItemFromNew = (id) => {
+    setNewTask({ ...newTask, checklist: newTask.checklist.filter(c => c.id !== id) });
+  };
+
+  const saveEditTask = () => {
+    if (!editTaskItem.name.trim()) return;
+    dispatch({ type:'EDIT_TASK', task:editTaskItem });
+    setEditTaskItem(null);
+    setEditChecklistItemText('');
+  };
+
+  const addChecklistItemToEdit = () => {
+    if (!editChecklistItemText.trim()) return;
+    setEditTaskItem({ ...editTaskItem, checklist: [...(editTaskItem.checklist||[]), { id: uid(), text: editChecklistItemText.trim(), done: false }] });
+    setEditChecklistItemText('');
+  };
+
+  const removeChecklistItemFromEdit = (id) => {
+    setEditTaskItem({ ...editTaskItem, checklist: editTaskItem.checklist.filter(c => c.id !== id) });
+  };
+
+  const toggleExpand = (id) => {
+    setExpandedTasks(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const saveCategory = () => {
+    if (!editingCategory.name.trim()) return;
+    if (editingCategory.isNew) {
+      dispatch({ type:'ADD_CATEGORY', category:{ id:uid(), name:editingCategory.name, color:editingCategory.color } });
+    } else {
+      dispatch({ type:'EDIT_CATEGORY', category:editingCategory });
+    }
+    setEditingCategory(null);
+  };
+
+  const deleteCategory = (id) => {
+    if (confirm('¿Seguro que deseas eliminar esta categoría?')) {
+      dispatch({ type:'DELETE_CATEGORY', categoryId:id });
+    }
   };
 
   const catChips = [
     { id:'todas', label:'Todas' },
-    { id:'trabajo', label:'Trabajo' },
-    { id:'proyecto', label:'Proyecto' },
-    { id:'personal', label:'Personal' },
+    ...categories.map(c => ({ id: c.id, label: c.name }))
   ];
   const priChips = [
     { id:'todas', label:'Todas' },
@@ -948,6 +1177,105 @@ function TasksTab({ state, dispatch }) {
     if (p === 'urgentes')    return 'bg-secondary-fixed/60 text-on-secondary-fixed';
     if (p === 'importantes') return 'bg-primary-fixed/60 text-on-primary-fixed';
     return 'bg-surface-container-high text-on-surface-variant';
+  };
+
+  const renderTaskItem = (task, index, taskCategory) => {
+    const isDragged = index !== null && draggedIndex === index;
+    const ageDays = Math.floor((Date.now() - new Date(task.createdAt)) / 86400000);
+    const isOverdueUrgente = task.priority === 'urgentes' && ageDays > 2;
+    const isOverdueImportante = task.priority === 'importantes' && ageDays > 10;
+    const isOverdue = !task.done && (isOverdueUrgente || isOverdueImportante);
+    const taskBgClass = isOverdue ? 'bg-error-container/30 border-error/50' : 'bg-surface-container-lowest border-outline-variant/20';
+
+    return (
+      <div key={task.id}
+        draggable={filterCat !== 'todas'}
+        onDragStart={(e) => {
+          if (filterCat === 'todas') return;
+          setDraggedIndex(index);
+          e.dataTransfer.effectAllowed = "move";
+        }}
+        onDragOver={(e) => { e.preventDefault(); }}
+        onDragEnter={(e) => {
+          if (filterCat === 'todas') return;
+          if (draggedIndex !== null && draggedIndex !== index) {
+            handleMoveTask(draggedIndex, index);
+            setDraggedIndex(index);
+          }
+        }}
+        onDragEnd={() => setDraggedIndex(null)}
+        className={`group flex flex-col p-4 rounded-xl border hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : taskBgClass}`}>
+        <div className="flex items-center gap-3 w-full">
+          {filterCat !== 'todas' && <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none shrink-0">drag_indicator</span>}
+          <label className="relative flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" checked={task.done}
+              onChange={() => dispatch({ type:'TOGGLE_TASK', taskId:task.id })}
+              className="w-5 h-5 rounded-full border-outline-variant accent-primary cursor-pointer" />
+          </label>
+          <div className="flex-1 min-w-0 flex items-center justify-between cursor-pointer" onClick={() => toggleExpand(task.id)}>
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="min-w-0">
+                <p className={`text-body-md font-medium text-on-surface truncate ${task.done ? 'task-checked' : ''}`}>{task.name}</p>
+                <span className="text-label-sm text-outline block mt-0.5">{task.createdAt}</span>
+              </div>
+              {/* Checklist indicators */}
+              {task.checklist && task.checklist.length > 0 && (
+                <div className="flex gap-1 items-center bg-surface-container-low px-2 py-1 rounded-full border border-outline-variant/20 shrink-0">
+                  {task.checklist.map((chk, i) => (
+                    <div key={i} className={`w-2.5 h-2.5 rounded-full ${chk.done ? 'bg-surface-variant' : ''}`} style={{ backgroundColor: chk.done ? undefined : (taskCategory?.color || '#ccc') }}></div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <span className={`material-symbols-outlined text-on-surface-variant transition-transform ${expandedTasks[task.id] ? 'rotate-180' : ''}`}>expand_more</span>
+          </div>
+          <div className="flex items-center gap-2 ml-2 shrink-0">
+            <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)} hidden sm:block`}>
+              {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+            </span>
+            <button onClick={() => setEditTaskItem(task)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-primary active:scale-90 p-1 hidden md:block">
+              <span className="material-symbols-outlined text-[18px]">edit</span>
+            </button>
+            <button onClick={() => dispatch({ type:'DELETE_TASK', taskId:task.id })}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-error active:scale-90 p-1">
+              <span className="material-symbols-outlined text-[18px]">delete</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Expanded Description Area */}
+        {expandedTasks[task.id] && (
+          <div className={`mt-3 pr-2 ${filterCat !== 'todas' ? 'pl-11' : 'pl-4'}`}>
+            {task.description && <p className="text-body-md text-on-surface-variant/80 whitespace-pre-wrap mb-3">{task.description}</p>}
+            
+            {/* Checklist inside expanded view */}
+            {task.checklist && task.checklist.length > 0 && (
+              <div className="space-y-1.5 mb-2">
+                {task.checklist.map(chk => (
+                  <label key={chk.id} className="flex items-start gap-2 cursor-pointer group/chk">
+                    <input type="checkbox" checked={chk.done}
+                      onChange={() => dispatch({ type: 'TOGGLE_TASK_CHECKLIST_ITEM', taskId: task.id, itemId: chk.id })}
+                      className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/50 cursor-pointer" />
+                    <span className={`text-body-md transition-colors ${chk.done ? 'text-on-surface-variant/50 line-through' : 'text-on-surface-variant'}`}>{chk.text}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-2 flex md:hidden items-center justify-between">
+               <button onClick={() => setEditTaskItem(task)}
+                 className="flex items-center gap-1 text-label-md text-primary font-bold">
+                 <span className="material-symbols-outlined text-[16px]">edit</span> Editar Tarea
+               </button>
+               <span className={`px-2 py-0.5 rounded text-[10px] ${priorityBadge(task.priority)}`}>
+                 {task.priority.toUpperCase()}
+               </span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -991,15 +1319,18 @@ function TasksTab({ state, dispatch }) {
         <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg">
           <h2 className="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">Distribución Pendientes</h2>
           <div className="space-y-3">
-            {[['Trabajo', distrib.trabajo], ['Proyecto', distrib.proyecto], ['Personal', distrib.personal]].map(([label, count]) => (
-              <div key={label} className="space-y-1.5">
+            {categories.filter(c => distrib[c.id] > 0).map(c => (
+              <div key={c.id} className="space-y-1.5">
                 <div className="flex justify-between items-end">
-                  <span className="text-body-md font-medium text-on-surface">{label}</span>
-                  <span className="text-label-md font-bold text-primary">{count}</span>
+                  <span className="text-body-md font-medium text-on-surface flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: c.color }}></span>
+                    {c.name}
+                  </span>
+                  <span className="text-label-md font-bold text-primary">{distrib[c.id]}</span>
                 </div>
                 <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
-                  <div className="h-full bg-primary rounded-full transition-all duration-700"
-                    style={{ width:`${Math.round((count/maxDist)*100)}%` }}></div>
+                  <div className="h-full rounded-full transition-all duration-700"
+                    style={{ width:`${Math.round((distrib[c.id]/maxDist)*100)}%`, backgroundColor: c.color }}></div>
                 </div>
               </div>
             ))}
@@ -1015,50 +1346,31 @@ function TasksTab({ state, dispatch }) {
             <p className="text-body-md">No hay tareas que coincidan</p>
           </div>
         )}
-        {filtered.map((task, index) => {
-          const isDragged = draggedIndex === index;
-          return (
-            <div key={task.id}
-              draggable
-              onDragStart={(e) => {
-                setDraggedIndex(index);
-                e.dataTransfer.effectAllowed = "move";
-              }}
-              onDragOver={(e) => {
-                e.preventDefault();
-              }}
-              onDragEnter={(e) => {
-                if (draggedIndex !== null && draggedIndex !== index) {
-                  handleMoveTask(draggedIndex, index);
-                  setDraggedIndex(index);
-                }
-              }}
-              onDragEnd={() => setDraggedIndex(null)}
-              className={`group flex items-center bg-surface-container-lowest p-4 rounded-xl border border-outline-variant/20 hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : ''}`}>
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none shrink-0">drag_indicator</span>
-                <label className="relative flex items-center cursor-pointer shrink-0">
-                  <input type="checkbox" checked={task.done}
-                    onChange={() => dispatch({ type:'TOGGLE_TASK', taskId:task.id })}
-                    className="w-5 h-5 rounded-full border-outline-variant accent-primary cursor-pointer" />
-                </label>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-body-md text-on-surface truncate ${task.done ? 'task-checked' : ''}`}>{task.name}</p>
-                  <span className="text-label-sm text-outline block mt-0.5">{task.createdAt}</span>
+        
+        {filterCat === 'todas' ? (
+          categories.map(c => {
+            const catTasks = filtered.filter(t => t.category === c.id);
+            if (catTasks.length === 0) return null;
+            
+            const priorityOrder = { urgentes: 1, importantes: 2, otras: 3 };
+            const sortedTasks = [...catTasks].sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+            
+            return (
+              <div key={`cat-group-${c.id}`} className="mb-6 last:mb-0">
+                <div className="flex items-center gap-2 mb-3 px-1">
+                  <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: c.color }}></span>
+                  <h3 className="text-label-lg font-bold text-on-surface uppercase tracking-wider">{c.name}</h3>
+                  <div className="h-px bg-outline-variant/30 flex-1 ml-2"></div>
+                </div>
+                <div className="space-y-3">
+                  {sortedTasks.map(task => renderTaskItem(task, null, c))}
                 </div>
               </div>
-              <div className="flex items-center gap-2 ml-2 shrink-0">
-                <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)}`}>
-                  {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-                </span>
-                <button onClick={() => dispatch({ type:'DELETE_TASK', taskId:task.id })}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-error active:scale-90 p-1">
-                  <span className="material-symbols-outlined text-[18px]">delete</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
+            );
+          })
+        ) : (
+          filtered.map((task, index) => renderTaskItem(task, index, categories.find(c => c.id === task.category)))
+        )}
       </div>
 
       {/* FAB */}
@@ -1069,11 +1381,10 @@ function TasksTab({ state, dispatch }) {
 
       {/* Add Task Sheet */}
       {showAdd && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
           onClick={e => { if (e.target === e.currentTarget) setShowAdd(false); }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
-          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-t-2xl md:rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
-            <div className="w-10 h-1 rounded-full bg-outline-variant mx-auto mb-lg md:hidden"></div>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
             <div className="flex justify-between items-center mb-lg">
               <h3 className="font-headline-md text-primary">Nueva Tarea</h3>
               <button onClick={() => setShowAdd(false)} className="p-1 rounded-full hover:bg-surface-container transition-colors">
@@ -1092,12 +1403,20 @@ function TasksTab({ state, dispatch }) {
               <div>
                 <label className="text-label-md text-on-surface-variant block mb-2">Categoría</label>
                 <div className="flex gap-2 flex-wrap">
-                  {['trabajo','proyecto','personal'].map(c => (
-                    <button key={c} onClick={() => setNewTask({...newTask,category:c})}
-                      className={`px-3 py-1.5 rounded-full text-label-md active:scale-95 transition-all ${
-                        newTask.category===c ? 'bg-primary text-on-primary shadow-sm' : 'border border-outline-variant/50 text-on-surface-variant hover:bg-surface-variant'
-                      }`}>{c.charAt(0).toUpperCase()+c.slice(1)}</button>
+                  {categories.map(c => (
+                    <button key={c.id} onClick={() => setNewTask({...newTask, category:c.id})}
+                      className={`px-3 py-1.5 rounded-full text-label-md active:scale-95 transition-all flex items-center gap-1 border ${
+                        newTask.category === c.id ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/50 text-on-surface-variant hover:bg-surface-variant'
+                      }`}>
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }}></span>
+                      {c.name}
+                    </button>
                   ))}
+                  <button onClick={() => { setShowAdd(false); setShowCategoryManager(true); }}
+                    className="px-3 py-1.5 rounded-full text-label-md border border-dashed border-outline-variant/80 text-on-surface-variant hover:bg-surface-variant transition-colors flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">edit</span>
+                    Gestionar
+                  </button>
                 </div>
               </div>
               <div>
@@ -1114,12 +1433,214 @@ function TasksTab({ state, dispatch }) {
                   ))}
                 </div>
               </div>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-1">Descripción (Opcional)</label>
+                <textarea value={newTask.description} onChange={e => setNewTask({...newTask, description:e.target.value})}
+                  placeholder="Detalles de la tarea..."
+                  rows="2"
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none mb-4" />
+              </div>
+              
+              {/* Checklist Management */}
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Lista de Chequeo (Subtareas)</label>
+                {newTask.checklist && newTask.checklist.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {newTask.checklist.map(chk => (
+                      <div key={chk.id} className="flex items-center justify-between bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/30">
+                        <span className="text-body-md text-on-surface truncate pr-2">{chk.text}</span>
+                        <button onClick={() => removeChecklistItemFromNew(chk.id)} className="text-on-surface-variant hover:text-error transition-colors p-1">
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input value={newChecklistItemText} onChange={e => setNewChecklistItemText(e.target.value)}
+                    onKeyDown={e => { if(e.key==='Enter') { e.preventDefault(); addChecklistItemToNew(); } }}
+                    placeholder="Añadir subtarea..."
+                    className="flex-1 border border-outline-variant/50 rounded-lg px-3 py-1.5 focus:border-primary focus:ring-1 focus:ring-primary bg-transparent outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors" />
+                  <button onClick={addChecklistItemToNew}
+                    className="bg-primary/10 text-primary px-3 rounded-lg hover:bg-primary/20 transition-colors font-medium text-label-md flex items-center">
+                    Añadir
+                  </button>
+                </div>
+              </div>
             </div>
             <button onClick={addTask}
               className="w-full mt-xl bg-primary text-on-primary font-bold py-4 rounded-xl active:scale-[0.98] transition-transform shadow-md flex items-center justify-center gap-2">
               <span className="material-symbols-outlined text-[20px]">add</span>
               Añadir tarea
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Task Sheet */}
+      {editTaskItem && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          onClick={e => { if (e.target === e.currentTarget) setEditTaskItem(null); }}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto max-h-[90vh] overflow-y-auto no-scrollbar">
+            <div className="flex justify-between items-center mb-lg">
+              <h3 className="font-headline-md text-primary">Editar Tarea</h3>
+              <button onClick={() => setEditTaskItem(null)} className="p-1 rounded-full hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              </button>
+            </div>
+            <div className="space-y-md">
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-1">Nombre de la tarea</label>
+                <input value={editTaskItem.name} onChange={e => setEditTaskItem({...editTaskItem, name:e.target.value})}
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
+              </div>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Categoría</label>
+                <div className="flex gap-2 flex-wrap">
+                  {categories.map(c => (
+                    <button key={c.id} onClick={() => setEditTaskItem({...editTaskItem, category:c.id})}
+                      className={`px-3 py-1.5 rounded-full text-label-md active:scale-95 transition-all flex items-center gap-1 border ${
+                        editTaskItem.category === c.id ? 'border-primary text-primary bg-primary/10 font-bold' : 'border-outline-variant/50 text-on-surface-variant hover:bg-surface-variant'
+                      }`}>
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }}></span>
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Prioridad</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[['urgentes','priority_high','Urgente'],['importantes','star','Importante'],['otras','more_horiz','Otras']].map(([p,icon,label]) => (
+                    <button key={p} onClick={() => setEditTaskItem({...editTaskItem, priority:p})}
+                      className={`flex flex-col items-center p-3 rounded-xl border text-label-sm active:scale-95 transition-all ${
+                        editTaskItem.priority===p ? 'border-primary bg-primary-fixed/40 text-primary' : 'border-outline-variant text-on-surface-variant hover:border-primary/40'
+                      }`}>
+                      <span className="material-symbols-outlined text-[20px] mb-1">{icon}</span>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-1">Descripción</label>
+                <textarea value={editTaskItem.description || ''} onChange={e => setEditTaskItem({...editTaskItem, description:e.target.value})}
+                  placeholder="Detalles de la tarea..."
+                  rows="3"
+                  className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors resize-none mb-4" />
+              </div>
+
+              {/* Edit Checklist Management */}
+              <div>
+                <label className="text-label-md text-on-surface-variant block mb-2">Lista de Chequeo (Subtareas)</label>
+                {editTaskItem.checklist && editTaskItem.checklist.length > 0 && (
+                  <div className="space-y-2 mb-3">
+                    {editTaskItem.checklist.map(chk => (
+                      <div key={chk.id} className="flex items-center justify-between bg-surface-container px-3 py-2 rounded-lg border border-outline-variant/30">
+                        <span className={`text-body-md truncate pr-2 ${chk.done ? 'line-through text-on-surface-variant/50' : 'text-on-surface'}`}>{chk.text}</span>
+                        <button onClick={() => removeChecklistItemFromEdit(chk.id)} className="text-on-surface-variant hover:text-error transition-colors p-1">
+                          <span className="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <input value={editChecklistItemText} onChange={e => setEditChecklistItemText(e.target.value)}
+                    onKeyDown={e => { if(e.key==='Enter') { e.preventDefault(); addChecklistItemToEdit(); } }}
+                    placeholder="Añadir subtarea..."
+                    className="flex-1 border border-outline-variant/50 rounded-lg px-3 py-1.5 focus:border-primary focus:ring-1 focus:ring-primary bg-transparent outline-none text-body-md text-on-surface placeholder:text-outline/50 transition-colors" />
+                  <button onClick={addChecklistItemToEdit}
+                    className="bg-primary/10 text-primary px-3 rounded-lg hover:bg-primary/20 transition-colors font-medium text-label-md flex items-center">
+                    Añadir
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button onClick={saveEditTask}
+              className="w-full mt-xl bg-primary text-on-primary font-bold py-4 rounded-xl active:scale-[0.98] transition-transform shadow-md">
+              Guardar Cambios
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Category Manager */}
+      {showCategoryManager && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          onClick={e => { if (e.target === e.currentTarget && !editingCategory) setShowCategoryManager(false); }}>
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-[400px] bg-surface-container-lowest rounded-2xl p-lg border border-outline-variant/30 shadow-2xl mx-auto">
+            {!editingCategory ? (
+              <>
+                <div className="flex justify-between items-center mb-lg">
+                  <h3 className="font-headline-md text-primary">Categorías</h3>
+                  <button onClick={() => setShowCategoryManager(false)} className="p-1 rounded-full hover:bg-surface-container transition-colors">
+                    <span className="material-symbols-outlined text-on-surface-variant">close</span>
+                  </button>
+                </div>
+                
+                <div className="space-y-2 mb-lg max-h-[50vh] overflow-y-auto no-scrollbar">
+                  {categories.map(c => (
+                    <div key={c.id} className="flex items-center justify-between p-3 rounded-xl border border-outline-variant/40 bg-surface-container-low">
+                      <div className="flex items-center gap-3">
+                        <span className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: c.color }}></span>
+                        <span className="text-body-lg font-medium text-on-surface">{c.name}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => setEditingCategory(c)} className="p-2 text-primary hover:bg-surface-container rounded-lg transition-colors">
+                          <span className="material-symbols-outlined text-[20px]">edit</span>
+                        </button>
+                        <button onClick={() => deleteCategory(c.id)} className="p-2 text-error hover:bg-error-container/30 rounded-lg transition-colors" disabled={categories.length <= 1}>
+                          <span className="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={() => setEditingCategory({ name: '', color: '#3b82f6', isNew: true })}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-primary text-primary font-bold hover:bg-primary/5 transition-colors">
+                  <span className="material-symbols-outlined text-[20px]">add</span>
+                  Nueva Categoría
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="font-headline-md text-primary mb-lg">{editingCategory.isNew ? 'Nueva Categoría' : 'Editar Categoría'}</h3>
+                <div className="space-y-md mb-xl">
+                  <div>
+                    <label className="text-label-md text-on-surface-variant block mb-1">Nombre</label>
+                    <input value={editingCategory.name} onChange={e => setEditingCategory({...editingCategory, name:e.target.value})}
+                      autoFocus
+                      className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors" />
+                  </div>
+                  <div>
+                    <label className="text-label-md text-on-surface-variant block mb-2">Color</label>
+                    <div className="flex gap-2 flex-wrap">
+                      {['#ef4444', '#f97316', '#eab308', '#22c55e', '#14b8a6', '#3b82f6', '#6366f1', '#a855f7', '#ec4899', '#64748b'].map(color => (
+                        <button key={color} onClick={() => setEditingCategory({...editingCategory, color})}
+                          className="w-8 h-8 rounded-full border border-outline-variant/30 relative flex items-center justify-center transition-transform hover:scale-110"
+                          style={{ backgroundColor: color }}>
+                          {editingCategory.color === color && <span className="material-symbols-outlined text-[16px] text-white">check</span>}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-sm">
+                  <button onClick={() => setEditingCategory(null)}
+                    className="flex-1 py-3 border border-outline-variant/50 rounded-xl text-label-md font-medium text-on-surface-variant hover:bg-surface-container transition-colors">
+                    Cancelar
+                  </button>
+                  <button onClick={saveCategory} disabled={!editingCategory.name.trim()}
+                    className="flex-1 py-3 bg-primary text-on-primary rounded-xl text-label-md font-bold shadow-sm disabled:opacity-50 transition-colors">
+                    Guardar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -1154,7 +1675,24 @@ function EvolutionTab({ state }) {
   const maxVal = Math.max(...dayData.map(x => x.val), 1);
   const totalVal = dayData.reduce((s, x) => s + x.val, 0);
   const completedDays = dayData.filter(x => x.val > 0).length;
-  const completionPct = Math.round((completedDays / days) * 100);
+  
+  const goal = item ? Number(item.goalValue) : NaN;
+  const hasGoal = !isNaN(goal) && goal > 0;
+  
+  let completionPct = 0;
+  let targetText = `${days} días`;
+  
+  if (item) {
+    if (item.hasValue) {
+      const maxPossible = hasGoal ? goal : Math.max(totalVal, 1);
+      completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
+      targetText = hasGoal ? `${goal}` : `${totalVal}`;
+    } else {
+      const maxPossible = hasGoal ? goal : days;
+      completionPct = Math.min(Math.round((completedDays / maxPossible) * 100), 100);
+      targetText = hasGoal ? `${goal} días` : `${days} días`;
+    }
+  }
 
   const progressByItem = useMemo(() => {
     return items.map(it => {
@@ -1169,8 +1707,15 @@ function EvolutionTab({ state }) {
           } else total++;
         }
       }
-      const maxPossible = it.hasValue ? Math.max(total, 1) : days;
-      return { ...it, total: Math.round(total * 10) / 10, pct: Math.min(Math.round((total / maxPossible) * 100), 100) };
+      const goal = Number(it.goalValue);
+      const hasGoal = !isNaN(goal) && goal > 0;
+      let maxPossible;
+      if (it.hasValue) {
+        maxPossible = hasGoal ? goal : Math.max(total, 1);
+      } else {
+        maxPossible = hasGoal ? goal : days;
+      }
+      return { ...it, total: Math.round(total * 10) / 10, pct: Math.min(Math.round((total / maxPossible) * 100), 100), goal: hasGoal ? goal : null };
     });
   }, [items, history, year, month, days]);
 
@@ -1243,8 +1788,10 @@ function EvolutionTab({ state }) {
         <div className="md:col-span-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-lg flex flex-col items-center justify-center text-center">
           <h2 className="text-label-sm text-on-surface-variant uppercase tracking-wider mb-md">Tasa de Completado</h2>
           <ProgressRing pct={completionPct} size={100} strokeWidth={9} />
-          <p className="mt-md text-label-md text-primary font-bold">{completedDays} de {days} días</p>
-          {item?.hasValue && <p className="text-label-sm text-on-surface-variant mt-1">Total: {Math.round(totalVal * 10) / 10}</p>}
+          <p className="mt-md text-label-md text-primary font-bold">
+            {item?.hasValue ? `${Math.round(totalVal * 10) / 10}` : completedDays} de {targetText}
+          </p>
+          {item?.hasValue && !hasGoal && <p className="text-label-sm text-on-surface-variant mt-1">Total: {Math.round(totalVal * 10) / 10}</p>}
         </div>
 
         {/* Progress by item */}
@@ -1256,13 +1803,13 @@ function EvolutionTab({ state }) {
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-sm">
                     <div className="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center">
-                      <span className="material-symbols-outlined text-primary text-[18px]">
-                        {it.category==='salud' ? 'fitness_center' : it.category==='finanzas' ? 'payments' : 'star'}
-                      </span>
+                      <span className="material-symbols-outlined text-primary text-[18px]">star</span>
                     </div>
                     <div>
                       <h3 className="text-body-md font-bold text-primary">{it.name}</h3>
-                      <p className="text-label-sm text-on-surface-variant">{it.total} {it.hasValue ? 'total' : 'días'}</p>
+                      <p className="text-label-sm text-on-surface-variant">
+                        {it.total} {it.goal || !it.hasValue ? `/ ${it.goal || days}` : ''} {it.hasValue ? 'total' : 'días'}
+                      </p>
                     </div>
                   </div>
                   <span className="text-label-md font-bold text-primary">{it.pct}%</span>
@@ -1374,7 +1921,7 @@ function SettingsTab({ state, dispatch, user, setAuthModal, forceSync, dbLoading
       {/* Appearance */}
       <section>
         <h2 className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Apariencia</h2>
-        <div className="grid grid-cols-2 gap-md">
+        <div className="grid grid-cols-2 gap-md mb-lg">
           {[['light','Claro','light_mode'], ['dark','Oscuro','dark_mode']].map(([val, label, icon]) => (
             <button key={val} onClick={() => dispatch({ type:'SET_THEME', theme:val })}
               className={`relative flex flex-col gap-sm p-base border-2 rounded-xl overflow-hidden transition-all active:scale-95 ${
@@ -1391,6 +1938,19 @@ function SettingsTab({ state, dispatch, user, setAuthModal, forceSync, dbLoading
               )}
             </button>
           ))}
+        </div>
+
+        <div>
+          <label className="text-label-md text-on-surface-variant block mb-3 font-bold">Color de Barra de Progreso (Hitos)</label>
+          <div className="flex gap-3 flex-wrap">
+            {['#ffddb8', '#fca5a5', '#fcd34d', '#86efac', '#67e8f9', '#93c5fd', '#d8b4fe', '#f9a8d4'].map(color => (
+              <button key={color} onClick={() => dispatch({ type:'SET_PROGRESS_COLOR', color })}
+                className="w-10 h-10 rounded-full border border-outline-variant/30 relative flex items-center justify-center transition-transform hover:scale-110 shadow-sm"
+                style={{ backgroundColor: color }}>
+                {(state.progressBarColor || '#ffddb8') === color && <span className="material-symbols-outlined text-[20px] text-black/60 font-bold mix-blend-color-burn">check</span>}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -1443,7 +2003,23 @@ function reducer(state, action) {
       return { ...state, items };
     }
     case 'ADD_TASK':    return { ...state, tasks: [action.task, ...state.tasks] };
+    case 'EDIT_TASK':   return { ...state, tasks: state.tasks.map(t => t.id === action.task.id ? action.task : t) };
     case 'TOGGLE_TASK': return { ...state, tasks: state.tasks.map(t => t.id===action.taskId ? {...t,done:!t.done} : t) };
+    case 'TOGGLE_TASK_CHECKLIST_ITEM': {
+      const { taskId, itemId } = action;
+      return {
+        ...state,
+        tasks: state.tasks.map(t => {
+          if (t.id === taskId) {
+            const checklist = t.checklist ? [...t.checklist] : [];
+            const idx = checklist.findIndex(c => c.id === itemId);
+            if (idx >= 0) checklist[idx] = { ...checklist[idx], done: !checklist[idx].done };
+            return { ...t, checklist };
+          }
+          return t;
+        })
+      };
+    }
     case 'DELETE_TASK': return { ...state, tasks: state.tasks.filter(t => t.id!==action.taskId) };
     case 'MOVE_TASK': {
       const { fromIndex, toIndex } = action;
@@ -1453,6 +2029,9 @@ function reducer(state, action) {
       tasks.splice(toIndex, 0, moved);
       return { ...state, tasks };
     }
+    case 'ADD_CATEGORY':    return { ...state, categories: [...(state.categories || DEFAULT_CATEGORIES), action.category] };
+    case 'EDIT_CATEGORY':   return { ...state, categories: (state.categories || DEFAULT_CATEGORIES).map(c => c.id === action.category.id ? action.category : c) };
+    case 'DELETE_CATEGORY': return { ...state, categories: (state.categories || DEFAULT_CATEGORIES).filter(c => c.id !== action.categoryId) };
     case 'PREV_MONTH': {
       let m = state.month - 1, y = state.year;
       if (m < 0) { m = 11; y--; }
@@ -1468,6 +2047,7 @@ function reducer(state, action) {
       if (action.theme === 'dark') html.classList.add('dark'); else html.classList.remove('dark');
       return { ...state, theme:action.theme };
     }
+    case 'SET_PROGRESS_COLOR': return { ...state, progressBarColor: action.color };
     case 'IMPORT': return { ...INITIAL_STATE, ...action.data };
     case 'RESET':  return { ...INITIAL_STATE };
     default: return state;
