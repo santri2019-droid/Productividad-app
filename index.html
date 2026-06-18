@@ -1960,6 +1960,19 @@
                       <span className={`material-symbols-outlined text-[18px] ${dbLoading ? 'animate-spin' : ''}`}>sync</span>
                       {dbLoading ? 'Sincronizando...' : 'Sincronizar'}
                     </button>
+                    <button
+                      onClick={() => {
+                        if (confirm('¿Enviar correo para restablecer la contraseña?')) {
+                          auth.sendPasswordResetEmail(user.email)
+                            .then(() => alert('Se ha enviado el correo de recuperación.'))
+                            .catch(err => alert('Error: ' + err.message));
+                        }
+                      }}
+                      className="flex items-center gap-1.5 border border-primary/20 hover:bg-primary-container/10 text-primary px-3 py-2 rounded-xl text-label-md font-semibold active:scale-95 transition-transform"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">mail</span>
+                      Restablecer contraseña
+                    </button>
                     <button onClick={() => { if (confirm('¿Estás seguro de que quieres cerrar sesión?')) auth.signOut(); }}
                       className="flex items-center gap-1.5 border border-error/20 hover:bg-error-container/10 text-error px-3 py-2 rounded-xl text-label-md font-semibold active:scale-95 transition-transform">
                       <span className="material-symbols-outlined text-[18px]">logout</span>
