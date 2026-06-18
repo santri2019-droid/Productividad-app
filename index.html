@@ -24,7 +24,7 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <!-- Babel for JSX -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
 
   <!-- Firebase SDKs (Compatibles con Scripts de Navegador) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -427,7 +427,7 @@
       try {
         const s = localStorage.getItem('productive_app_v2');
         return s ? { ...INITIAL_STATE, ...JSON.parse(s) } : { ...INITIAL_STATE };
-      } catch { return { ...INITIAL_STATE }; }
+      } catch (e) { return { ...INITIAL_STATE }; }
     }
     function saveState(state) {
       localStorage.setItem('productive_app_v2', JSON.stringify(state));
@@ -1903,7 +1903,7 @@
           const reader = new FileReader();
           reader.onload = ev => {
             try { dispatch({ type: 'IMPORT', data: JSON.parse(ev.target.result) }); alert('Datos importados correctamente.'); }
-            catch { alert('Error al importar: JSON inválido.'); }
+            catch (e) { alert('Error al importar: JSON inválido.'); }
           };
           reader.readAsText(f);
         };
