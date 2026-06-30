@@ -420,7 +420,128 @@
       year: new Date().getFullYear(),
       month: new Date().getMonth(),
       progressBarColor: '#ffddb8',
+      lastReportedMonth: '',
+      notificationsEnabled: false,
+      lastNotificationDate: '',
     };
+
+    // Función para calcular cantidad de tareas Urgentes y Vencidas
+    function getTaskAlerts(tasks) {
+      const pending = (tasks || []).filter(t => !t.done);
+      const urgentes = pending.filter(t => t.priority === 'urgentes');
+      const vencidas = pending.filter(t => {
+        const ageDays = Math.floor((Date.now() - new Date(t.createdAt)) / 86400000);
+        const isOverdueUrgente = t.priority === 'urgentes' && ageDays > 2;
+        const isOverdueImportante = t.priority === 'importantes' && ageDays > 10;
+        return isOverdueUrgente || isOverdueImportante;
+      });
+      return { urgentesCount: urgentes.length, vencidasCount: vencidas.length };
+    }
+
+    // Lanzar notificación nativa
+    function triggerLocalNotification(state) {
+      if (!("Notification" in window)) {
+        alert("Este navegador no soporta notificaciones de escritorio.");
+        return;
+      }
+      if (Notification.permission === "granted") {
+        const alerts = getTaskAlerts(state.tasks);
+        if (alerts.urgentesCount > 0 || alerts.vencidasCount > 0) {
+          new Notification("Resumen de Tareas - Productive.app", {
+            body: `Tienes ${alerts.urgentesCount} tareas urgentes y ${alerts.vencidasCount} vencidas pendientes hoy.`,
+            icon: "app_logo.png"
+          });
+        } else {
+          new Notification("¡Todo al día! - Productive.app", {
+            body: "No tienes tareas urgentes ni vencidas pendientes para hoy.",
+            icon: "app_logo.png"
+          });
+        }
+      } else {
+        alert("Por favor, habilita los permisos de notificación primero.");
+      }
+    }
+
+    // Función para descargar reporte en formato .txt
+    function downloadReportForMonth(state, reportYear, reportMonth) {
+      const { items, history, tasks } = state;
+      const reportDays = getDaysInMonth(reportYear, reportMonth);
+      const monthName = MONTHS_ES[reportMonth];
+      let text = `=========================================\n`;
+      text += `   REPORTE DE PRODUCTIVIDAD - ${monthName.toUpperCase()} ${reportYear}\n`;
+      text += `=========================================\n\n`;
+
+      // Hitos
+      text += `📈 RESUMEN DE HITOS:\n`;
+      text += `-----------------------------------------\n`;
+      items.forEach(it => {
+        let total = 0;
+        let daysCompleted = 0;
+        for (let d = 1; d <= reportDays; d++) {
+          const key = formatKey(reportYear, reportMonth, d);
+          const v = history[key]?.[it.id];
+          if (v !== undefined && v !== null && v !== false && v !== '') {
+            if (it.hasValue && typeof v === 'string') {
+              const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+              if (!isNaN(n)) total += n; else total++;
+            } else {
+              total++;
+            }
+            daysCompleted++;
+          }
+        }
+        const goal = Number(it.goalValue);
+        const hasGoal = !isNaN(goal) && goal > 0;
+        let pct = 0;
+        if (it.hasValue) {
+          const maxVal = hasGoal ? goal : Math.max(total, 1);
+          pct = Math.min(Math.round((total / maxVal) * 100), 100);
+          text += `* ${it.name}: Total ${total} ${hasGoal ? `(Meta: ${goal})` : ''} - [${pct}% completado]\n`;
+        } else {
+          const maxVal = hasGoal ? goal : reportDays;
+          pct = Math.min(Math.round((daysCompleted / maxVal) * 100), 100);
+          text += `* ${it.name}: ${daysCompleted}/${reportDays} días ${hasGoal ? `(Meta: ${goal})` : ''} - [${pct}% completado]\n`;
+        }
+      });
+
+      // Tareas
+      text += `\n✅ RESUMEN DE TAREAS:\n`;
+      text += `-----------------------------------------\n`;
+      const monthTasks = (tasks || []).filter(t => {
+        const prefix = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
+        return t.createdAt && t.createdAt.startsWith(prefix);
+      });
+
+      const completedTasks = monthTasks.filter(t => t.done);
+      const pendingTasks = monthTasks.filter(t => !t.done);
+      text += `Total de tareas creadas este mes: ${monthTasks.length}\n`;
+      text += `  - Completadas: ${completedTasks.length}\n`;
+      text += `  - Pendientes: ${pendingTasks.length}\n\n`;
+
+      if (monthTasks.length > 0) {
+        text += `Detalle de tareas:\n`;
+        monthTasks.forEach(t => {
+          text += `[${t.done ? 'X' : ' '}] (${t.priority.toUpperCase()}) ${t.name}\n`;
+          if (t.description) text += `    Nota: ${t.description}\n`;
+          if (t.checklist && t.checklist.length > 0) {
+            t.checklist.forEach(chk => {
+              text += `      - [${chk.done ? 'x' : ' '}] ${chk.text}\n`;
+            });
+          }
+        });
+      } else {
+        text += `Sin tareas registradas en este período.\n`;
+      }
+
+      text += `\n=========================================\n`;
+      text += `Generado el ${new Date().toLocaleDateString('es-ES')} - Productive.app\n`;
+
+      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `reporte_productividad_${monthName.toLowerCase()}_${reportYear}.txt`;
+      a.click();
+    }
 
     // ─── STORAGE ─────────────────────────────────────────────────────────────────
     function loadState() {
@@ -623,6 +744,35 @@
         return streak;
       }, [items, history]);
 
+      const days = getDaysInMonth(year, month);
+
+      const progressByItem = useMemo(() => {
+        return items.map(it => {
+          let total = 0;
+          for (let d = 1; d <= days; d++) {
+            const key = formatKey(year, month, d);
+            const v = history[key]?.[it.id];
+            if (v !== undefined && v !== null && v !== false && v !== '') {
+              if (it.hasValue && typeof v === 'string') {
+                const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+                if (!isNaN(n)) total += n; else total++;
+              } else total++;
+            }
+          }
+          const goal = Number(it.goalValue);
+          const hasGoal = !isNaN(goal) && goal > 0;
+          let maxPossible;
+          if (it.hasValue) {
+            maxPossible = hasGoal ? goal : Math.max(total, 1);
+          } else {
+            maxPossible = hasGoal ? goal : days;
+          }
+          return { ...it, total: Math.round(total * 10) / 10, pct: Math.min(Math.round((total / maxPossible) * 100), 100), goal: hasGoal ? goal : null };
+        });
+      }, [items, history, year, month, days]);
+
+      const alerts = useMemo(() => getTaskAlerts(tasks), [tasks]);
+
       const metrics = [
         { label: 'AÑO', pct: yearPct },
         { label: 'MES', pct: monthPct },
@@ -637,6 +787,23 @@
             <p className="font-mono text-[10px] tracking-widest text-on-surface-variant/60 uppercase mb-1">PÁG. 1</p>
             <h1 className="text-headline-lg-mobile md:text-headline-lg font-bold text-primary tracking-tight">Home</h1>
           </header>
+
+          {/* Banner de Tareas Urgentes/Vencidas */}
+          {(alerts.urgentesCount > 0 || alerts.vencidasCount > 0) && (
+            <div className="bg-error-container/20 border border-error/30 rounded-xl p-md flex items-start gap-md animate-pulse">
+              <span className="material-symbols-outlined text-error text-[24px] mt-0.5">warning</span>
+              <div className="flex-1">
+                <h3 className="font-bold text-body-md text-error">Tareas Pendientes Críticas</h3>
+                <p className="text-body-md text-on-surface-variant mt-0.5">
+                  Hoy tienes {alerts.urgentesCount > 0 ? <strong>{alerts.urgentesCount} urgentes</strong> : '0 urgentes'} y {alerts.vencidasCount > 0 ? <strong>{alerts.vencidasCount} vencidas</strong> : '0 vencidas'} sin completar.
+                </p>
+                <button onClick={() => setTab('tasks')}
+                  className="mt-2 text-label-md text-primary font-bold hover:underline flex items-center gap-1">
+                  Resolver ahora <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Streak Card */}
           {streakDays > 0 && (
@@ -709,6 +876,37 @@
                   </div>
                 );
               })}
+            </div>
+          </section>
+
+          {/* Progreso de Hitos con Mes Dinámico */}
+          <section className="space-y-md">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="material-symbols-outlined text-on-surface-variant text-[18px]">star</span>
+              <h2 className="text-label-sm font-bold tracking-wider text-on-surface-variant uppercase">Progreso de Hitos - {MONTHS_ES[month]}</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+              {progressByItem.map(it => (
+                <div key={it.id} className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-md flex flex-col gap-sm">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-sm">
+                      <div className="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center">
+                        <span className="material-symbols-outlined text-primary text-[18px]">star</span>
+                      </div>
+                      <div>
+                        <h3 className="text-body-md font-bold text-primary">{it.name}</h3>
+                        <p className="text-label-sm text-on-surface-variant">
+                          {it.total} {it.goal || !it.hasValue ? `/ ${it.goal || days}` : ''} {it.hasValue ? 'total' : 'días'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-label-md font-bold text-primary">{it.pct}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${it.pct}%`, backgroundColor: state.progressBarColor || '#ffddb8' }}></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </section>
         </div>
@@ -952,6 +1150,15 @@
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Botón para generar reporte del mes en curso */}
+          <div className="mt-6 flex justify-center pb-2">
+            <button onClick={() => downloadReportForMonth(state, year, month)}
+              className="flex items-center justify-center gap-2 w-full max-w-sm bg-primary-container text-on-primary-container border border-outline-variant/60 hover:bg-surface-container-high px-5 py-3.5 rounded-xl text-label-md font-bold transition-all active:scale-[0.98] shadow-sm">
+              <span className="material-symbols-outlined">analytics</span>
+              Generar Reporte del Mes ({MONTHS_ES[month]})
+            </button>
           </div>
 
           {/* Value Modal */}
@@ -1719,18 +1926,61 @@
 
       const dayData = useMemo(() => {
         if (!item) return [];
-        return Array.from({ length: days }, (_, i) => {
-          const d = i + 1;
-          const key = formatKey(year, month, d);
-          const v = history[key]?.[item.id];
-          if (v === undefined || v === null || v === false) return { d, val: 0 };
-          if (item.hasValue && typeof v === 'string') {
-            const n = parseFloat(v.replace(/[^\d.-]/g, ''));
-            return { d, val: isNaN(n) ? 1 : n };
+        if (timeframe === 'semanal') {
+          const list = [];
+          const now = new Date();
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date(now);
+            d.setDate(now.getDate() - i);
+            const key = formatKey(d.getFullYear(), d.getMonth(), d.getDate());
+            const v = history[key]?.[item.id];
+            let val = 0;
+            if (v !== undefined && v !== null && v !== false && v !== '') {
+              if (item.hasValue && typeof v === 'string') {
+                const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+                val = isNaN(n) ? 1 : n;
+              } else {
+                val = 1;
+              }
+            }
+            list.push({ d: `${d.getDate()}/${d.getMonth()+1}`, val });
           }
-          return { d, val: 1 };
-        });
-      }, [item, history, year, month, days]);
+          return list;
+        } else if (timeframe === 'anual') {
+          const list = [];
+          for (let m = 0; m < 12; m++) {
+            const monthDays = getDaysInMonth(year, m);
+            let total = 0;
+            for (let d = 1; d <= monthDays; d++) {
+              const key = formatKey(year, m, d);
+              const v = history[key]?.[item.id];
+              if (v !== undefined && v !== null && v !== false && v !== '') {
+                if (item.hasValue && typeof v === 'string') {
+                  const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+                  if (!isNaN(n)) total += n; else total++;
+                } else {
+                  total++;
+                }
+              }
+            }
+            list.push({ d: MONTHS_ES[m].substring(0, 3), val: Math.round(total * 10) / 10 });
+          }
+          return list;
+        } else {
+          // mensual
+          return Array.from({ length: days }, (_, i) => {
+            const d = i + 1;
+            const key = formatKey(year, month, d);
+            const v = history[key]?.[item.id];
+            if (v === undefined || v === null || v === false) return { d, val: 0 };
+            if (item.hasValue && typeof v === 'string') {
+              const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+              return { d, val: isNaN(n) ? 1 : n };
+            }
+            return { d, val: 1 };
+          });
+        }
+      }, [item, history, year, month, days, timeframe]);
 
       const maxVal = Math.max(...dayData.map(x => x.val), 1);
       const totalVal = dayData.reduce((s, x) => s + x.val, 0);
@@ -1740,49 +1990,49 @@
       const hasGoal = !isNaN(goal) && goal > 0;
 
       let completionPct = 0;
-      let targetText = `${days} días`;
+      let targetText = "";
 
       if (item) {
-        if (item.hasValue) {
-          const maxPossible = hasGoal ? goal : Math.max(totalVal, 1);
-          completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
-          targetText = hasGoal ? `${goal}` : `${totalVal}`;
+        if (timeframe === 'semanal') {
+          if (item.hasValue) {
+            const scaledGoal = hasGoal ? (goal / 30) * 7 : 0;
+            const maxPossible = scaledGoal > 0 ? scaledGoal : Math.max(totalVal, 1);
+            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
+            targetText = hasGoal ? `${Math.round(scaledGoal * 10)/10}` : `${totalVal}`;
+          } else {
+            const scaledGoal = hasGoal ? Math.round((goal / 30) * 7) : 7;
+            completionPct = Math.min(Math.round((totalVal / scaledGoal) * 100), 100);
+            targetText = `${scaledGoal} días`;
+          }
+        } else if (timeframe === 'anual') {
+          if (item.hasValue) {
+            const annualGoal = hasGoal ? goal * 12 : 0;
+            const maxPossible = annualGoal > 0 ? annualGoal : Math.max(totalVal, 1);
+            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
+            targetText = hasGoal ? `${annualGoal}` : `${totalVal}`;
+          } else {
+            const annualGoal = hasGoal ? goal * 12 : 365;
+            completionPct = Math.min(Math.round((totalVal / annualGoal) * 100), 100);
+            targetText = `${annualGoal} días`;
+          }
         } else {
-          const maxPossible = hasGoal ? goal : days;
-          completionPct = Math.min(Math.round((completedDays / maxPossible) * 100), 100);
-          targetText = hasGoal ? `${goal} días` : `${days} días`;
+          // mensual
+          if (item.hasValue) {
+            const maxPossible = hasGoal ? goal : Math.max(totalVal, 1);
+            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
+            targetText = hasGoal ? `${goal}` : `${totalVal}`;
+          } else {
+            const maxPossible = hasGoal ? goal : days;
+            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
+            targetText = hasGoal ? `${goal} días` : `${days} días`;
+          }
         }
       }
-
-      const progressByItem = useMemo(() => {
-        return items.map(it => {
-          let total = 0;
-          for (let d = 1; d <= days; d++) {
-            const key = formatKey(year, month, d);
-            const v = history[key]?.[it.id];
-            if (v !== undefined && v !== null && v !== false && v !== '') {
-              if (it.hasValue && typeof v === 'string') {
-                const n = parseFloat(v.replace(/[^\d.-]/g, ''));
-                if (!isNaN(n)) total += n; else total++;
-              } else total++;
-            }
-          }
-          const goal = Number(it.goalValue);
-          const hasGoal = !isNaN(goal) && goal > 0;
-          let maxPossible;
-          if (it.hasValue) {
-            maxPossible = hasGoal ? goal : Math.max(total, 1);
-          } else {
-            maxPossible = hasGoal ? goal : days;
-          }
-          return { ...it, total: Math.round(total * 10) / 10, pct: Math.min(Math.round((total / maxPossible) * 100), 100), goal: hasGoal ? goal : null };
-        });
-      }, [items, history, year, month, days]);
 
       // SVG chart
       const chartW = 300, chartH = 100, padX = 0, padY = 10;
       const pts = dayData.map((x, i) => {
-        const cx = padX + (i / (days - 1)) * (chartW - padX * 2);
+        const cx = padX + (i / Math.max(dayData.length - 1, 1)) * (chartW - padX * 2);
         const cy = padY + (1 - x.val / maxVal) * (chartH - padY * 2);
         return [cx, cy];
       });
@@ -1818,7 +2068,9 @@
           <div className="grid grid-cols-1 md:grid-cols-12 gap-md">
             {/* Chart */}
             <div className="md:col-span-7 bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-lg">
-              <p className="text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Evolución Mensual</p>
+              <p className="text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
+                {timeframe === 'semanal' ? 'Evolución Semanal (Últimos 7 días)' : timeframe === 'anual' ? 'Evolución Anual' : 'Evolución Mensual'}
+              </p>
               <div className="flex items-baseline gap-2 mb-md">
                 <span className="text-headline-lg-mobile font-bold text-primary">{completionPct}%</span>
                 <span className="text-label-sm text-secondary flex items-center gap-0.5">
@@ -1851,34 +2103,6 @@
                 {item?.hasValue ? `${Math.round(totalVal * 10) / 10}` : completedDays} de {targetText}
               </p>
               {item?.hasValue && !hasGoal && <p className="text-label-sm text-on-surface-variant mt-1">Total: {Math.round(totalVal * 10) / 10}</p>}
-            </div>
-
-            {/* Progress by item */}
-            <div className="md:col-span-12 space-y-md">
-              <h2 className="font-headline-md text-primary">Progreso de Hitos</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                {progressByItem.map(it => (
-                  <div key={it.id} className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-md flex flex-col gap-sm">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-sm">
-                        <div className="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center">
-                          <span className="material-symbols-outlined text-primary text-[18px]">star</span>
-                        </div>
-                        <div>
-                          <h3 className="text-body-md font-bold text-primary">{it.name}</h3>
-                          <p className="text-label-sm text-on-surface-variant">
-                            {it.total} {it.goal || !it.hasValue ? `/ ${it.goal || days}` : ''} {it.hasValue ? 'total' : 'días'}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-label-md font-bold text-primary">{it.pct}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden">
-                      <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${it.pct}%` }}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
@@ -2025,6 +2249,52 @@
             </div>
           </section>
 
+          {/* Notifications Setting */}
+          <section>
+            <h2 className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Notificaciones Diarias</h2>
+            <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg space-y-md">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-primary">Alertas de Tareas Críticas</p>
+                  <p className="text-body-md text-on-surface-variant mt-0.5">Aviso diario de tareas urgentes y vencidas.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!state.notificationsEnabled) {
+                      if (!("Notification" in window)) {
+                        alert("Este navegador no soporta notificaciones de escritorio.");
+                        return;
+                      }
+                      Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                          dispatch({ type: 'SET_NOTIFICATIONS_ENABLED', enabled: true });
+                        } else {
+                          alert("Se denegaron los permisos de notificación.");
+                        }
+                      });
+                    } else {
+                      dispatch({ type: 'SET_NOTIFICATIONS_ENABLED', enabled: false });
+                    }
+                  }}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${state.notificationsEnabled ? 'bg-primary' : 'bg-surface-container-high'}`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${state.notificationsEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </div>
+              {state.notificationsEnabled && (
+                <div className="pt-md border-t border-outline-variant/20 flex justify-between items-center">
+                  <span className="text-body-md text-on-surface-variant">Prueba del sistema de avisos:</span>
+                  <button onClick={() => triggerLocalNotification(state)}
+                    className="flex items-center gap-1 px-4 py-2 border border-outline-variant/60 hover:bg-surface-container-low text-primary rounded-xl text-label-md font-semibold active:scale-95 transition-transform">
+                    <span className="material-symbols-outlined text-[18px]">notifications_active</span>
+                    Probar Alerta Ahora
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+
           {/* Data Management */}
           <section>
             <h2 className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-md">Gestión de Datos</h2>
@@ -2119,6 +2389,9 @@
           return { ...state, theme: action.theme };
         }
         case 'SET_PROGRESS_COLOR': return { ...state, progressBarColor: action.color };
+        case 'SET_LAST_REPORTED_MONTH': return { ...state, lastReportedMonth: action.monthStr };
+        case 'SET_NOTIFICATIONS_ENABLED': return { ...state, notificationsEnabled: action.enabled };
+        case 'SET_LAST_NOTIFICATION_DATE': return { ...state, lastNotificationDate: action.dateStr };
         case 'IMPORT': return { ...INITIAL_STATE, ...action.data };
         case 'RESET': return { ...INITIAL_STATE };
         default: return state;
@@ -2143,6 +2416,26 @@
       }, [isOpen]);
 
       if (!isOpen) return null;
+
+      const handleForgotPassword = () => {
+        if (!email.trim()) {
+          setError('Por favor, ingresa tu correo electrónico primero para enviarte el enlace de recuperación.');
+          return;
+        }
+        setLoading(true);
+        setError('');
+        auth.sendPasswordResetEmail(email.trim())
+          .then(() => {
+            alert(`Se ha enviado un correo para restablecer tu contraseña a: ${email}`);
+          })
+          .catch(err => {
+            console.error("Password reset error:", err);
+            setError(`Error al enviar correo: ${err.message}`);
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      };
 
       const handleSubmit = (e) => {
         e.preventDefault();
@@ -2232,6 +2525,18 @@
                   disabled={loading}
                   className="w-full border-b border-outline-variant/50 focus:border-primary bg-transparent py-2 outline-none text-body-lg text-on-surface transition-colors disabled:opacity-50"
                 />
+                {!isRegister && (
+                  <div className="text-right mt-2">
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      disabled={loading}
+                      className="text-label-md text-primary font-semibold hover:underline"
+                    >
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -2277,6 +2582,69 @@
       const [syncing, setSyncing] = useState(false);
       const [dbLoading, setDbLoading] = useState(false);
       const [authModal, setAuthModal] = useState(false);
+
+      // Notificaciones automáticas de tareas al iniciar el día
+      useEffect(() => {
+        if (!state || !state.notificationsEnabled) return;
+        
+        const now = new Date();
+        const todayStr = formatKey(now.getFullYear(), now.getMonth(), now.getDate());
+
+        if (state.lastNotificationDate !== todayStr && Notification.permission === "granted") {
+          const alerts = getTaskAlerts(state.tasks);
+          if (alerts.urgentesCount > 0 || alerts.vencidasCount > 0) {
+            new Notification("Resumen diario de tareas", {
+              body: `Hoy tienes ${alerts.urgentesCount} tareas urgentes y ${alerts.vencidasCount} vencidas pendientes.`,
+              icon: "app_logo.png"
+            });
+            dispatch({ type: 'SET_LAST_NOTIFICATION_DATE', dateStr: todayStr });
+          }
+        }
+      }, [state?.tasks, state?.notificationsEnabled, state?.lastNotificationDate]);
+
+      // Alerta de fin de mes automática
+      useEffect(() => {
+        if (!state) return;
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        // Obtener el mes anterior
+        let prevMonth = currentMonth - 1;
+        let prevYear = currentYear;
+        if (prevMonth < 0) {
+          prevMonth = 11;
+          prevYear--;
+        }
+
+        const prevMonthStr = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}`;
+        
+        // Si no se ha reportado el mes anterior y el usuario tiene historial de ese mes
+        if (state.lastReportedMonth !== prevMonthStr) {
+          let hasData = false;
+          const reportDays = getDaysInMonth(prevYear, prevMonth);
+          for (let d = 1; d <= reportDays; d++) {
+            const key = formatKey(prevYear, prevMonth, d);
+            if (state.history[key] && Object.keys(state.history[key]).length > 0) {
+              hasData = true;
+              break;
+            }
+          }
+
+          if (hasData) {
+            setTimeout(() => {
+              const confirmReport = confirm(`¡Ha finalizado el mes de ${MONTHS_ES[prevMonth]} ${prevYear}! ¿Deseas descargar el reporte de productividad de ese mes?`);
+              if (confirmReport) {
+                downloadReportForMonth(state, prevYear, prevMonth);
+              }
+              dispatch({ type: 'SET_LAST_REPORTED_MONTH', monthStr: prevMonthStr });
+            }, 2000);
+          } else {
+            // Si no hay datos, marcarlo silenciosamente como reportado para no molestar
+            dispatch({ type: 'SET_LAST_REPORTED_MONTH', monthStr: prevMonthStr });
+          }
+        }
+      }, [state?.history]);
 
       // Persist to localStorage
       useEffect(() => { saveState(state); }, [state]);

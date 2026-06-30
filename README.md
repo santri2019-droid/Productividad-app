@@ -9,9 +9,9 @@ Una aplicación web de productividad premium, interactiva y totalmente responsiv
 ## 🚀 Características Premium
 
 *   **📱 Diseño Móvil Primero (Android 360x800px) & Desktop**: Experiencia fluida con barra de navegación inferior en móviles y barra lateral en escritorio.
-*   **📊 Rastreador de Hitos Semanal**: Tabla interactiva con scroll horizontal y selector de estados para completar tus metas del día.
-*   **✅ Gestor de Tareas Avanzado**: Filtros inteligentes (Pendientes, Completadas, Todas), buscador en tiempo real y modal de creación rápida.
-*   **📈 Evolución y Estadísticas**: Gráficos SVG interactivos, anillos de progreso dinámicos y métricas de consistencia semanal.
+*   **📊 Rastreador de Hitos Semanal y Reportes**: Tabla interactiva con scroll horizontal, selector de estados y generación de reportes del mes en curso o finalizado en formato descargable `.txt`.
+*   **✅ Gestor de Tareas Avanzado y Avisos**: Filtros inteligentes, buscador en tiempo real, modal de creación rápida y notificaciones diarias (vía Web Notification API y aviso visual in-app) para tareas Urgentes y Vencidas.
+*   **📈 Evolución y Estadísticas Dinámicas**: Gráficos SVG interactivos y tasas de completado con filtros de tiempo avanzados (Semanal de los últimos 7 días, Mensual en curso y Anual consolidando los 12 meses del año).
 *   **⚙️ Ajustes Personalizados**: Modo oscuro/claro y herramientas para importar, exportar o restablecer tus datos.
 *   **💾 Persistencia Local**: Tus datos se guardan automáticamente en tu navegador mediante `localStorage`.
 
