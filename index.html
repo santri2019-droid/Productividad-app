@@ -2059,8 +2059,8 @@
           const v = history[key]?.[item.id];
           let val = 0;
           if (v !== undefined && v !== null && v !== false && v !== '') {
-            if (item.hasValue && typeof v === 'string') {
-              const n = parseFloat(v.replace(/[^\d.-]/g, ''));
+            if (item.hasValue) {
+              let n = typeof v === 'number' ? v : parseFloat(String(v).replace(/[^\d.-]/g, ''));
               val = isNaN(n) ? 1 : n;
             } else {
               val = 1;
@@ -2107,9 +2107,7 @@
                       <div className="flex flex-1 items-center justify-between bg-surface-container/30 rounded-full px-2 py-1.5">
                         {row.map(d => {
                           const val = dayValues[d];
-                          const isMet = item.hasValue 
-                            ? (hasGoal ? val >= dailyGoal : val > 0)
-                            : (val > 0);
+                          const isMet = val > 0;
                           return (
                             <div key={d} 
                                  title={`Día ${d}: ${val}`}
@@ -2126,7 +2124,7 @@
                         ))}
                       </div>
                       <div className={`w-11 h-11 md:w-12 md:h-12 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold shadow-sm ${getColorForPercentage(rowPct)}`}>
-                        {rowPct}%
+                        {item.hasValue ? Math.round(rowTotal * 10) / 10 : `${rowPct}%`}
                       </div>
                     </div>
                   );
