@@ -134,9 +134,9 @@
       overscroll-behavior: none;
     }
 
-    /* CSS Variables */
+    /* CSS Variables - Serene Palette */
     :root {
-      --color-primary: #000000;
+      --color-primary: #475569;
       --color-on-primary: #ffffff;
       --color-primary-container: #1b1b1e;
       --color-on-primary-container: #858387;
@@ -164,31 +164,31 @@
       --color-error-container: #ffdad6;
       --color-on-error: #ffffff;
       --color-on-error-container: #93000a;
-      --color-surface: #fbf8ff;
+      --color-surface: #f8f9fa;
       --color-surface-dim: #dad9e3;
-      --color-surface-bright: #fbf8ff;
+      --color-surface-bright: #f8f9fa;
       --color-surface-container-lowest: #ffffff;
-      --color-surface-container-low: #f4f2fd;
-      --color-surface-container: #eeedf7;
-      --color-surface-container-high: #e8e7f1;
-      --color-surface-container-highest: #e3e1ec;
-      --color-surface-variant: #e3e1ec;
+      --color-surface-container-low: #f4f5f7;
+      --color-surface-container: #eef0f3;
+      --color-surface-container-high: #e5e7eb;
+      --color-surface-container-highest: #d1d5db;
+      --color-surface-variant: #e5e7eb;
       --color-surface-tint: #5f5e61;
-      --color-on-surface: #1a1b22;
-      --color-on-surface-variant: #47464b;
-      --color-outline: #77767b;
-      --color-outline-variant: #c8c5cb;
-      --color-background: #fbf8ff;
-      --color-on-background: #1a1b22;
+      --color-on-surface: #334155;
+      --color-on-surface-variant: #475569;
+      --color-outline: #94a3b8;
+      --color-outline-variant: #cbd5e1;
+      --color-background: #f8f9fa;
+      --color-on-background: #334155;
       --color-inverse-surface: #2f3038;
       --color-inverse-on-surface: #f1effa;
       --color-inverse-primary: #c8c5ca;
-      --color-success: #00C853;
+      --color-success: #4ade80;
     }
 
     html.dark {
-      --color-primary: #ffb95f;
-      --color-on-primary: #2a1700;
+      --color-primary: #94a3b8;
+      --color-on-primary: #0f172a;
       --color-primary-container: #1b1b1e;
       --color-on-primary-container: #858387;
       --color-primary-fixed: #e4e1e6;
@@ -215,26 +215,26 @@
       --color-error-container: #ffdad6;
       --color-on-error: #ffffff;
       --color-on-error-container: #93000a;
-      --color-surface: #1a1b22;
-      --color-surface-dim: #3a3b45;
-      --color-surface-bright: #1a1b22;
-      --color-surface-container-lowest: #1a1b22;
-      --color-surface-container-low: #22232b;
-      --color-surface-container: #22232b;
-      --color-surface-container-high: #2a2b34;
-      --color-surface-container-highest: #2a2b34;
-      --color-surface-variant: #2a2b34;
+      --color-surface: #0f172a;
+      --color-surface-dim: #1e293b;
+      --color-surface-bright: #0f172a;
+      --color-surface-container-lowest: #020617;
+      --color-surface-container-low: #0f172a;
+      --color-surface-container: #1e293b;
+      --color-surface-container-high: #334155;
+      --color-surface-container-highest: #475569;
+      --color-surface-variant: #334155;
       --color-surface-tint: #5f5e61;
-      --color-on-surface: #e3e1ec;
-      --color-on-surface-variant: #c8c5cb;
-      --color-outline: #8f8f96;
-      --color-outline-variant: #44444a;
-      --color-background: #1a1b22;
-      --color-on-background: #e3e1ec;
+      --color-on-surface: #f1f5f9;
+      --color-on-surface-variant: #cbd5e1;
+      --color-outline: #64748b;
+      --color-outline-variant: #334155;
+      --color-background: #0f172a;
+      --color-on-background: #f1f5f9;
       --color-inverse-surface: #2f3038;
       --color-inverse-on-surface: #f1effa;
       --color-inverse-primary: #c8c5ca;
-      --color-success: #00C853;
+      --color-success: #4ade80;
     }
 
     /* Dark Mode Body */
@@ -273,13 +273,13 @@
 
     /* Glass */
     .glass {
-      background: rgba(251, 248, 255, 0.82);
+      background: rgba(248, 249, 250, 0.82);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
     }
 
     html.dark .glass {
-      background: rgba(26, 27, 34, 0.85);
+      background: rgba(15, 23, 42, 0.85);
     }
 
     /* Progress ring animation */
@@ -674,9 +674,35 @@
     }
 
     // ─── HOME ─────────────────────────────────────────────────────────────────────
-    function HomeTab({ state, setTab }) {
+    function HomeTab({ state, dispatch, setTab }) {
       const now = new Date();
       const { items, history, year, month, tasks } = state;
+      const [newHoyTaskName, setNewHoyTaskName] = useState('');
+      const [expandedTasks, setExpandedTasks] = useState({});
+
+      const toggleExpand = (id) => {
+        setExpandedTasks(prev => ({ ...prev, [id]: !prev[id] }));
+      };
+
+      const addHoyTask = (e) => {
+        e.preventDefault();
+        if (!newHoyTaskName.trim()) return;
+        const newTask = {
+          id: uid(),
+          name: newHoyTaskName,
+          category: state.categories?.[0]?.id || 'trabajo',
+          priority: 'otras',
+          description: '',
+          checklist: [],
+          done: false,
+          isToday: true,
+          createdAt: new Date().toISOString().slice(0, 10)
+        };
+        dispatch({ type: 'ADD_TASK', task: newTask });
+        setNewHoyTaskName('');
+      };
+
+      const todayTasks = useMemo(() => tasks.filter(t => t.isToday && !t.done), [tasks]);
 
       const dayPct = useMemo(() => {
         const today = now.getDate();
@@ -773,12 +799,7 @@
 
       const alerts = useMemo(() => getTaskAlerts(tasks), [tasks]);
 
-      const metrics = [
-        { label: 'AÑO', pct: yearPct },
-        { label: 'MES', pct: monthPct },
-        { label: 'SEMANA', pct: weekPct },
-        { label: 'DÍA', pct: dayPct },
-      ];
+
 
       return (
         <div className="tab-content space-y-xl">
@@ -805,9 +826,99 @@
             </div>
           )}
 
+          {/* Módulo Hoy */}
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-on-surface-variant text-[18px]">today</span>
+                <h2 className="text-label-sm font-bold tracking-wider text-on-surface-variant uppercase">Hoy</h2>
+              </div>
+            </div>
+            <div className="space-y-3 mb-4">
+              {todayTasks.length === 0 ? (
+                <p className="text-body-md text-on-surface-variant/60">No hay tareas para hoy.</p>
+              ) : (
+                todayTasks.map(task => {
+                  const taskCategory = (state.categories || DEFAULT_CATEGORIES).find(c => c.id === task.category);
+                  const priorityBadge = (p) => {
+                    if (p === 'urgentes') return 'bg-secondary-fixed/60 text-on-secondary-fixed';
+                    if (p === 'importantes') return 'bg-primary-fixed/60 text-on-primary-fixed';
+                    return 'bg-surface-container-high text-on-surface-variant';
+                  };
+                  return (
+                    <div key={task.id} className="group flex flex-col p-5 rounded-2xl border hover:border-outline-variant/50 transition-all bg-surface-container-lowest border-outline-variant/20">
+                      <div className="flex items-center gap-3 w-full">
+                        <label className="relative flex items-center cursor-pointer shrink-0">
+                          <input type="checkbox" checked={task.done}
+                            onChange={() => dispatch({ type: 'TOGGLE_TASK', taskId: task.id })}
+                            className="w-5 h-5 rounded-full border-outline-variant accent-primary cursor-pointer" />
+                        </label>
+                        <div className="flex-1 min-w-0 flex items-center justify-between cursor-pointer" onClick={() => toggleExpand(task.id)}>
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <div className="min-w-0">
+                              <p className={`text-body-md font-medium text-on-surface truncate ${task.done ? 'task-checked' : ''}`}>{task.name}</p>
+                              <span className="text-label-sm text-outline block mt-0.5">{task.createdAt}</span>
+                            </div>
+                            {task.checklist && task.checklist.length > 0 && (
+                              <div className="flex gap-1 items-center bg-surface-container-low px-2 py-1 rounded-full border border-outline-variant/20 shrink-0">
+                                {task.checklist.map((chk, i) => (
+                                  <div key={i} className={`w-2.5 h-2.5 rounded-full ${chk.done ? 'bg-surface-variant' : ''}`} style={{ backgroundColor: chk.done ? undefined : (taskCategory?.color || '#ccc') }}></div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <span className={`material-symbols-outlined text-on-surface-variant transition-transform ${expandedTasks[task.id] ? 'rotate-180' : ''}`}>expand_more</span>
+                        </div>
+                        <div className="flex items-center gap-2 ml-2 shrink-0">
+                          <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)} hidden sm:block`}>
+                            {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                          </span>
+                          <button onClick={() => dispatch({ type: 'TOGGLE_TASK_TODAY', taskId: task.id })}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-secondary-fixed active:scale-90 p-1 hidden md:block"
+                            title="Quitar de Hoy">
+                            <span className="material-symbols-outlined text-[18px]">today</span>
+                          </button>
+                        </div>
+                      </div>
+                      {expandedTasks[task.id] && (
+                        <div className="mt-3 pr-2 pl-11">
+                          {task.description && <p className="text-body-md text-on-surface-variant/80 whitespace-pre-wrap mb-3">{task.description}</p>}
+                          {task.checklist && task.checklist.length > 0 && (
+                            <div className="space-y-1.5 mb-2">
+                              {task.checklist.map(chk => (
+                                <label key={chk.id} className="flex items-start gap-2 cursor-pointer group/chk">
+                                  <input type="checkbox" checked={chk.done}
+                                    onChange={() => dispatch({ type: 'TOGGLE_TASK_CHECKLIST_ITEM', taskId: task.id, itemId: chk.id })}
+                                    className="mt-0.5 w-4 h-4 rounded border-outline-variant text-primary focus:ring-primary/50 cursor-pointer" />
+                                  <span className={`text-body-md transition-colors ${chk.done ? 'text-on-surface-variant/50 line-through' : 'text-on-surface-variant'}`}>{chk.text}</span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <form onSubmit={addHoyTask} className="flex items-center gap-2">
+              <input 
+                type="text" 
+                value={newHoyTaskName} 
+                onChange={(e) => setNewHoyTaskName(e.target.value)} 
+                placeholder="Agregar tarea para hoy..." 
+                className="flex-1 h-11 px-4 bg-surface-container-low border-none rounded-xl text-body-md focus:outline-none focus:ring-1 focus:ring-primary placeholder:text-outline"
+              />
+              <button type="submit" disabled={!newHoyTaskName.trim()} className="w-11 h-11 bg-primary text-on-primary rounded-xl flex items-center justify-center disabled:opacity-50 active:scale-95 transition-transform">
+                <span className="material-symbols-outlined text-[24px]">add</span>
+              </button>
+            </form>
+          </section>
+
           {/* Streak Card */}
           {streakDays > 0 && (
-            <div className="streak-card bg-secondary-container/20 border border-secondary-container/40 rounded-xl p-lg flex items-center justify-between">
+            <div className="streak-card bg-secondary-container/20 border border-secondary-container/40 rounded-2xl p-lg flex items-center justify-between">
               <div>
                 <p className="text-label-sm text-on-surface-variant uppercase tracking-widest mb-1">Racha Actual</p>
                 <p className="text-headline-md font-bold text-primary">{streakDays} {streakDays === 1 ? 'Día' : 'Días'} Consecutivos</p>
@@ -816,22 +927,7 @@
             </div>
           )}
 
-          {/* Progress Rings */}
-          <section>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-on-surface-variant text-[18px]">monitoring</span>
-              <h2 className="text-label-sm font-bold tracking-wider text-on-surface-variant uppercase">Métricas de Productividad</h2>
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-md">
-              {metrics.map(m => (
-                <div key={m.label}
-                  className="bg-surface-container-lowest border border-outline-variant/60 rounded-xl p-md flex flex-col items-center justify-center gap-3 h-[120px] transition-all hover:border-outline-variant">
-                  <span className="text-label-sm font-bold tracking-wider text-on-surface-variant uppercase">{m.label}</span>
-                  <ProgressRing pct={m.pct} size={72} strokeWidth={7} />
-                </div>
-              ))}
-            </div>
-          </section>
+
 
           {/* Task Summary */}
           <section>
@@ -845,7 +941,7 @@
                 Ver todo
               </button>
             </div>
-            <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-xl overflow-hidden divide-y divide-outline-variant/20">
+            <div className="bg-surface-container-lowest border border-outline-variant/60 rounded-2xl overflow-hidden divide-y divide-outline-variant/20">
               {[
                 { label: 'URGENTES', tasks: tasksByPriority.urgentes, threshold: 2, bg: 'bg-secondary-fixed/60', text: 'text-on-secondary-fixed' },
                 { label: 'IMPORTANTES', tasks: tasksByPriority.importantes, threshold: 10, bg: 'bg-primary-fixed/60', text: 'text-on-primary-fixed' },
@@ -887,7 +983,7 @@
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               {progressByItem.map(it => (
-                <div key={it.id} className="bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-md flex flex-col gap-sm">
+                <div key={it.id} className="bg-surface-container-lowest border border-outline-variant/40 rounded-2xl p-lg flex flex-col gap-sm shadow-sm hover:shadow transition-shadow">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-sm">
                       <div className="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center">
@@ -1045,7 +1141,7 @@
           </div>
 
           {/* Legend */}
-          <div className="flex items-center gap-lg py-sm px-md bg-surface-container-low rounded-xl mb-md">
+          <div className="flex items-center gap-lg py-4 px-lg bg-surface-container-low rounded-2xl mb-md">
             <div className="flex items-center gap-xs">
               <span className="w-3 h-3 rounded-full bg-success"></span>
               <span className="text-label-md text-on-surface-variant">Logrado</span>
@@ -1061,7 +1157,7 @@
           </div>
 
           {/* Table */}
-          <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl overflow-hidden">
+          <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-2xl overflow-hidden">
             <div className="overflow-x-auto no-scrollbar" ref={scrollContainerRef}>
               <table className="border-collapse" style={{ minWidth: `${80 + days * 44}px` }}>
                 <thead>
@@ -1477,7 +1573,7 @@
               }
             }}
             onDragEnd={() => setDraggedIndex(null)}
-            className={`group flex flex-col p-4 rounded-xl border hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : taskBgClass}`}>
+            className={`group flex flex-col p-5 rounded-2xl border hover:border-outline-variant/50 transition-all ${task.done ? 'opacity-60' : ''} ${isDragged ? 'opacity-40 bg-surface-container-low' : taskBgClass}`}>
             <div className="flex items-center gap-3 w-full">
               {filterCat !== 'todas' && <span className="material-symbols-outlined text-[18px] text-on-surface-variant/40 cursor-grab active:cursor-grabbing select-none shrink-0">drag_indicator</span>}
               <label className="relative flex items-center cursor-pointer shrink-0">
@@ -1506,6 +1602,11 @@
                 <span className={`px-2 py-0.5 rounded text-label-sm ${priorityBadge(task.priority)} hidden sm:block`}>
                   {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </span>
+                <button onClick={() => dispatch({ type: 'TOGGLE_TASK_TODAY', taskId: task.id })}
+                  className={`opacity-0 group-hover:opacity-100 transition-opacity active:scale-90 p-1 hidden md:block ${task.isToday ? 'text-secondary-fixed' : 'text-on-surface-variant'}`}
+                  title={task.isToday ? "Quitar de Hoy" : "Agregar a Hoy"}>
+                  <span className="material-symbols-outlined text-[18px]">{task.isToday ? 'today' : 'schedule'}</span>
+                </button>
                 <button onClick={() => setEditTaskItem(task)}
                   className="opacity-0 group-hover:opacity-100 transition-opacity text-primary active:scale-90 p-1 hidden md:block">
                   <span className="material-symbols-outlined text-[18px]">edit</span>
@@ -1917,127 +2018,135 @@
 
     // ─── EVOLUTION ────────────────────────────────────────────────────────────────
     function EvolutionTab({ state }) {
-      const { items, history, year, month } = state;
-      const [selectedItem, setSelectedItem] = useState(items[0]?.id || '');
-      const [timeframe, setTimeframe] = useState('mensual');
+      const { items, history, year } = state;
+      const [openMonth, setOpenMonth] = useState(new Date().getMonth());
 
-      const item = items.find(i => i.id === selectedItem);
-      const days = getDaysInMonth(year, month);
+      const getColorForPercentage = (pct) => {
+        if (pct < 30) return 'bg-error text-on-error';
+        if (pct < 50) return 'bg-[#f97316] text-white'; // orange-500
+        if (pct < 75) return 'bg-[#eab308] text-white'; // yellow-500
+        return 'bg-[#22c55e] text-white'; // green-500
+      };
 
-      const dayData = useMemo(() => {
-        if (!item) return [];
-        if (timeframe === 'semanal') {
-          const list = [];
-          const now = new Date();
-          for (let i = 6; i >= 0; i--) {
-            const d = new Date(now);
-            d.setDate(now.getDate() - i);
-            const key = formatKey(d.getFullYear(), d.getMonth(), d.getDate());
-            const v = history[key]?.[item.id];
-            let val = 0;
-            if (v !== undefined && v !== null && v !== false && v !== '') {
-              if (item.hasValue && typeof v === 'string') {
-                const n = parseFloat(v.replace(/[^\d.-]/g, ''));
-                val = isNaN(n) ? 1 : n;
-              } else {
-                val = 1;
-              }
-            }
-            list.push({ d: `${d.getDate()}/${d.getMonth()+1}`, val });
+      const renderHabitTracker = (item, monthIdx) => {
+        const daysInMonth = getDaysInMonth(year, monthIdx);
+        
+        // Split days into rows of 7
+        const rows = [];
+        let currentRow = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          currentRow.push(d);
+          if (currentRow.length === 7 || d === daysInMonth) {
+            rows.push(currentRow);
+            currentRow = [];
           }
-          return list;
-        } else if (timeframe === 'anual') {
-          const list = [];
-          for (let m = 0; m < 12; m++) {
-            const monthDays = getDaysInMonth(year, m);
-            let total = 0;
-            for (let d = 1; d <= monthDays; d++) {
-              const key = formatKey(year, m, d);
-              const v = history[key]?.[item.id];
-              if (v !== undefined && v !== null && v !== false && v !== '') {
-                if (item.hasValue && typeof v === 'string') {
-                  const n = parseFloat(v.replace(/[^\d.-]/g, ''));
-                  if (!isNaN(n)) total += n; else total++;
-                } else {
-                  total++;
-                }
-              }
-            }
-            list.push({ d: MONTHS_ES[m].substring(0, 3), val: Math.round(total * 10) / 10 });
-          }
-          return list;
-        } else {
-          // mensual
-          return Array.from({ length: days }, (_, i) => {
-            const d = i + 1;
-            const key = formatKey(year, month, d);
-            const v = history[key]?.[item.id];
-            if (v === undefined || v === null || v === false) return { d, val: 0 };
+        }
+
+        // Calculate values per day
+        const goal = Number(item.goalValue);
+        const hasGoal = !isNaN(goal) && goal > 0;
+
+        const dayValues = {};
+        let monthTotal = 0;
+        let monthGoalTotal = 0;
+
+        // If goal is the monthly goal:
+        // The daily goal is goal / daysInMonth
+        const dailyGoal = hasGoal ? goal / daysInMonth : 1;
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const key = formatKey(year, monthIdx, d);
+          const v = history[key]?.[item.id];
+          let val = 0;
+          if (v !== undefined && v !== null && v !== false && v !== '') {
             if (item.hasValue && typeof v === 'string') {
               const n = parseFloat(v.replace(/[^\d.-]/g, ''));
-              return { d, val: isNaN(n) ? 1 : n };
+              val = isNaN(n) ? 1 : n;
+            } else {
+              val = 1;
             }
-            return { d, val: 1 };
-          });
+          }
+          dayValues[d] = val;
+          monthTotal += val;
         }
-      }, [item, history, year, month, days, timeframe]);
 
-      const maxVal = Math.max(...dayData.map(x => x.val), 1);
-      const totalVal = dayData.reduce((s, x) => s + x.val, 0);
-      const completedDays = dayData.filter(x => x.val > 0).length;
-
-      const goal = item ? Number(item.goalValue) : NaN;
-      const hasGoal = !isNaN(goal) && goal > 0;
-
-      let completionPct = 0;
-      let targetText = "";
-
-      if (item) {
-        if (timeframe === 'semanal') {
-          if (item.hasValue) {
-            const scaledGoal = hasGoal ? (goal / 30) * 7 : 0;
-            const maxPossible = scaledGoal > 0 ? scaledGoal : Math.max(totalVal, 1);
-            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
-            targetText = hasGoal ? `${Math.round(scaledGoal * 10)/10}` : `${totalVal}`;
-          } else {
-            const scaledGoal = hasGoal ? Math.round((goal / 30) * 7) : 7;
-            completionPct = Math.min(Math.round((totalVal / scaledGoal) * 100), 100);
-            targetText = `${scaledGoal} días`;
-          }
-        } else if (timeframe === 'anual') {
-          if (item.hasValue) {
-            const annualGoal = hasGoal ? goal * 12 : 0;
-            const maxPossible = annualGoal > 0 ? annualGoal : Math.max(totalVal, 1);
-            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
-            targetText = hasGoal ? `${annualGoal}` : `${totalVal}`;
-          } else {
-            const annualGoal = hasGoal ? goal * 12 : 365;
-            completionPct = Math.min(Math.round((totalVal / annualGoal) * 100), 100);
-            targetText = `${annualGoal} días`;
-          }
+        if (item.hasValue) {
+          monthGoalTotal = hasGoal ? goal : Math.max(monthTotal, 1);
         } else {
-          // mensual
-          if (item.hasValue) {
-            const maxPossible = hasGoal ? goal : Math.max(totalVal, 1);
-            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
-            targetText = hasGoal ? `${goal}` : `${totalVal}`;
-          } else {
-            const maxPossible = hasGoal ? goal : days;
-            completionPct = Math.min(Math.round((totalVal / maxPossible) * 100), 100);
-            targetText = hasGoal ? `${goal} días` : `${days} días`;
-          }
+          monthGoalTotal = daysInMonth; // 1 per day
         }
-      }
 
-      // SVG chart
-      const chartW = 300, chartH = 100, padX = 0, padY = 10;
-      const pts = dayData.map((x, i) => {
-        const cx = padX + (i / Math.max(dayData.length - 1, 1)) * (chartW - padX * 2);
-        const cy = padY + (1 - x.val / maxVal) * (chartH - padY * 2);
-        return [cx, cy];
-      });
-      const linePath = pts.length > 1 ? `M ${pts.map(p => p.join(',')).join(' L ')}` : '';
-      const areaPath = pts.length > 1 ? `M ${pts[0][0]},${chartH} L ${pts.map(p => p.join(',')).join(' L ')} L ${pts[pts.length - 1][0]},${chartH} Z` : '';
+        const monthPct = Math.min(Math.round((monthTotal / monthGoalTotal) * 100), 100) || 0;
+
+        return (
+          <div key={item.id} className="bg-surface-container-lowest border border-outline-variant/30 rounded-xl p-md mb-md flex flex-col md:flex-row gap-6 md:items-center">
+            <div className="md:w-1/4">
+              <h3 className="text-label-md font-bold text-primary uppercase tracking-wider">{item.name}</h3>
+              <p className="text-body-md text-on-surface-variant mt-1">
+                Progreso: {Math.round(monthTotal * 10)/10} / {Math.round(monthGoalTotal * 10)/10}
+              </p>
+            </div>
+            
+            <div className="flex-1 flex gap-4 items-stretch">
+              {/* Rows */}
+              <div className="flex-1 flex flex-col gap-2">
+                {rows.map((row, rIdx) => {
+                  let rowTotal = 0;
+                  row.forEach(d => rowTotal += dayValues[d]);
+                  
+                  let rowGoal = 0;
+                  if (item.hasValue) {
+                    rowGoal = hasGoal ? dailyGoal * row.length : Math.max(rowTotal, 1);
+                  } else {
+                    rowGoal = row.length;
+                  }
+                  const rowPct = Math.min(Math.round((rowTotal / rowGoal) * 100), 100) || 0;
+
+                  return (
+                    <div key={rIdx} className="flex items-center gap-3">
+                      <div className="flex flex-1 items-center justify-between bg-surface-container/30 rounded-full px-2 py-1.5">
+                        {row.map(d => {
+                          const val = dayValues[d];
+                          const isMet = item.hasValue 
+                            ? (hasGoal ? val >= dailyGoal : val > 0)
+                            : (val > 0);
+                          return (
+                            <div key={d} 
+                                 title={`Día ${d}: ${val}`}
+                                 className={`w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-[11px] font-bold transition-colors ${
+                                   isMet ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface-container-high text-on-surface-variant'
+                                 }`}>
+                              {d}
+                            </div>
+                          );
+                        })}
+                        {/* Fill empty spaces in the last row if < 7 */}
+                        {Array.from({ length: 7 - row.length }).map((_, i) => (
+                          <div key={`empty-${i}`} className="w-7 h-7 md:w-8 md:h-8"></div>
+                        ))}
+                      </div>
+                      <div className={`w-11 h-11 md:w-12 md:h-12 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold shadow-sm ${getColorForPercentage(rowPct)}`}>
+                        {rowPct}%
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Monthly vertical bar */}
+              <div className="relative w-12 md:w-16 shrink-0 rounded-[2rem] bg-surface-container/60 border border-outline-variant/30 overflow-hidden shadow-sm flex items-center justify-center">
+                <div 
+                  className={`absolute bottom-0 left-0 right-0 w-full transition-all duration-500 ${getColorForPercentage(monthPct).split(' ')[0]}`} 
+                  style={{ height: `${monthPct}%` }}
+                />
+                <span className={`relative z-10 text-label-md md:text-label-lg font-bold transform -rotate-90 origin-center whitespace-nowrap transition-colors duration-300 ${monthPct > 45 ? 'text-white' : 'text-primary'}`}>
+                  {monthPct}%
+                </span>
+              </div>
+            </div>
+          </div>
+        );
+      };
 
       return (
         <div className="tab-content space-y-lg">
@@ -2046,64 +2155,32 @@
             <h1 className="text-headline-lg-mobile md:text-headline-lg font-bold text-primary tracking-tight">Evolución</h1>
           </header>
 
-          {/* Timeframe Toggle */}
-          <div className="flex p-1 bg-surface-container-low border border-outline-variant/20 rounded-xl">
-            {['semanal', 'mensual', 'anual'].map(tf => (
-              <button key={tf} onClick={() => setTimeframe(tf)}
-                className={`flex-1 py-2 text-label-md rounded-lg transition-all capitalize ${timeframe === tf ? 'bg-surface-container-lowest shadow-sm text-primary font-semibold' : 'text-on-surface-variant hover:opacity-80'
-                  }`}>{tf}</button>
-            ))}
-          </div>
-
-          {/* Item selector */}
-          <div>
-            <label className="text-label-md text-on-surface-variant block mb-1">Hito a Analizar</label>
-            <select value={selectedItem} onChange={e => setSelectedItem(e.target.value)}
-              className="w-full bg-surface-container border border-outline-variant/50 rounded-xl px-md py-sm text-body-md text-on-surface focus:outline-none focus:border-primary">
-              {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-            </select>
-          </div>
-
-          {/* Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-md">
-            {/* Chart */}
-            <div className="md:col-span-7 bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-lg">
-              <p className="text-label-sm text-on-surface-variant uppercase tracking-wider mb-1">
-                {timeframe === 'semanal' ? 'Evolución Semanal (Últimos 7 días)' : timeframe === 'anual' ? 'Evolución Anual' : 'Evolución Mensual'}
-              </p>
-              <div className="flex items-baseline gap-2 mb-md">
-                <span className="text-headline-lg-mobile font-bold text-primary">{completionPct}%</span>
-                <span className="text-label-sm text-secondary flex items-center gap-0.5">
-                  <span className="material-symbols-outlined text-[14px]">trending_up</span>
-                  completado
-                </span>
-              </div>
-              <div className="w-full h-[100px]">
-                <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full h-full" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="black" stopOpacity="0.15" />
-                      <stop offset="100%" stopColor="black" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  {areaPath && <path d={areaPath} fill="url(#chartGrad)" />}
-                  {linePath && <path d={linePath} fill="none" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
-                  {pts.filter((_, i) => dayData[i].val > 0).map((p, i) => (
-                    <circle key={i} cx={p[0]} cy={p[1]} r="3" fill="black" />
-                  ))}
-                </svg>
-              </div>
-            </div>
-
-            {/* Completion Ring */}
-            <div className="md:col-span-5 bg-surface-container-lowest border border-outline-variant/40 rounded-xl p-lg flex flex-col items-center justify-center text-center">
-              <h2 className="text-label-sm text-on-surface-variant uppercase tracking-wider mb-md">Tasa de Completado</h2>
-              <ProgressRing pct={completionPct} size={100} strokeWidth={9} />
-              <p className="mt-md text-label-md text-primary font-bold">
-                {item?.hasValue ? `${Math.round(totalVal * 10) / 10}` : completedDays} de {targetText}
-              </p>
-              {item?.hasValue && !hasGoal && <p className="text-label-sm text-on-surface-variant mt-1">Total: {Math.round(totalVal * 10) / 10}</p>}
-            </div>
+          <div className="space-y-sm pb-8">
+            {MONTHS_ES.map((monthName, mIdx) => {
+              const isOpen = openMonth === mIdx;
+              return (
+                <div key={mIdx} className="border border-outline-variant/30 rounded-xl overflow-hidden bg-surface-container-lowest shadow-sm transition-all">
+                  <button 
+                    onClick={() => setOpenMonth(isOpen ? -1 : mIdx)}
+                    className="w-full flex items-center justify-between p-4 bg-surface-container hover:bg-surface-container-high transition-colors text-primary"
+                  >
+                    <span className="text-label-lg font-bold uppercase tracking-widest">{monthName} {year}</span>
+                    <span className={`material-symbols-outlined transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+                      expand_more
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="p-4 md:p-6 bg-background">
+                      {items.length === 0 ? (
+                        <p className="text-body-md text-on-surface-variant/60 text-center py-4">No hay metas registradas.</p>
+                      ) : (
+                        items.map(item => renderHabitTracker(item, mIdx))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       );
@@ -2346,6 +2423,7 @@
         case 'ADD_TASK': return { ...state, tasks: [action.task, ...state.tasks] };
         case 'EDIT_TASK': return { ...state, tasks: state.tasks.map(t => t.id === action.task.id ? action.task : t) };
         case 'TOGGLE_TASK': return { ...state, tasks: state.tasks.map(t => t.id === action.taskId ? { ...t, done: !t.done } : t) };
+        case 'TOGGLE_TASK_TODAY': return { ...state, tasks: state.tasks.map(t => t.id === action.taskId ? { ...t, isToday: !t.isToday } : t) };
         case 'TOGGLE_TASK_CHECKLIST_ITEM': {
           const { taskId, itemId } = action;
           return {
@@ -2705,7 +2783,7 @@
 
       const renderTab = () => {
         switch (tab) {
-          case 'home': return <HomeTab state={state} setTab={setTab} />;
+          case 'home': return <HomeTab state={state} dispatch={dispatch} setTab={setTab} />;
           case 'tracker': return <TrackerTab state={state} dispatch={dispatch} />;
           case 'tasks': return <TasksTab state={state} dispatch={dispatch} />;
           case 'evolution': return <EvolutionTab state={state} />;
@@ -2719,7 +2797,7 @@
               dbLoading={dbLoading}
             />
           );
-          default: return <HomeTab state={state} setTab={setTab} />;
+          default: return <HomeTab state={state} dispatch={dispatch} setTab={setTab} />;
         }
       };
 
