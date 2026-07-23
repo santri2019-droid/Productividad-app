@@ -355,6 +355,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </head>
 
 <body>
@@ -1742,10 +1743,23 @@
       const chartCompletedInstance = useRef(null);
 
       useEffect(() => {
+        // Formateador para mostrar porcentajes
+        const datalabelsFormatter = (value, context) => {
+          let sum = 0;
+          let dataArr = context.chart.data.datasets[0].data;
+          dataArr.map(data => { sum += data; });
+          if (sum === 0 || value === 0) return '';
+          let percentage = (value * 100 / sum).toFixed(1) + "%";
+          return percentage;
+        };
+
+        const chartPlugins = [ChartDataLabels];
+
         if (chartTotalRef.current && chartData) {
           if (chartTotalInstance.current) chartTotalInstance.current.destroy();
           chartTotalInstance.current = new Chart(chartTotalRef.current, {
             type: 'pie',
+            plugins: chartPlugins,
             data: {
               labels: chartData.labels,
               datasets: [{
@@ -1757,7 +1771,14 @@
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: { legend: { position: 'bottom' } }
+              plugins: { 
+                legend: { position: 'bottom' },
+                datalabels: {
+                  color: '#fff',
+                  font: { weight: 'bold' },
+                  formatter: datalabelsFormatter
+                }
+              }
             }
           });
         }
@@ -1765,6 +1786,7 @@
           if (chartCompletedInstance.current) chartCompletedInstance.current.destroy();
           chartCompletedInstance.current = new Chart(chartCompletedRef.current, {
             type: 'pie',
+            plugins: chartPlugins,
             data: {
               labels: chartData.labels,
               datasets: [{
@@ -1776,7 +1798,14 @@
             options: {
               responsive: true,
               maintainAspectRatio: false,
-              plugins: { legend: { position: 'bottom' } }
+              plugins: { 
+                legend: { position: 'bottom' },
+                datalabels: {
+                  color: '#fff',
+                  font: { weight: 'bold' },
+                  formatter: datalabelsFormatter
+                }
+              }
             }
           });
         }
