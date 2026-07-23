@@ -354,6 +354,7 @@
       opacity: 0.5;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -427,7 +428,7 @@
 
     // Función para calcular cantidad de tareas Urgentes y Vencidas
     function getTaskAlerts(tasks) {
-      const pending = (tasks || []).filter(t => !t.done);
+      const pending = (tasks || []).filter(t => !t.deleted && !t.done);
       const urgentes = pending.filter(t => t.priority === 'urgentes');
       const vencidas = pending.filter(t => {
         const ageDays = Math.floor((Date.now() - new Date(t.createdAt)) / 86400000);
@@ -507,7 +508,7 @@
       // Tareas (ahora Metas)
       text += `\n✅ RESUMEN DE METAS:\n`;
       text += `-----------------------------------------\n`;
-      const monthTasks = (tasks || []).filter(t => {
+      const monthTasks = (tasks || []).filter(t => !t.deleted).filter(t => {
         const prefix = `${reportYear}-${String(reportMonth + 1).padStart(2, '0')}`;
         return t.createdAt && t.createdAt.startsWith(prefix);
       });
@@ -702,7 +703,8 @@
         setNewHoyTaskName('');
       };
 
-      const todayTasks = useMemo(() => tasks.filter(t => t.isToday && !t.done), [tasks]);
+      // Datos Home
+      const todayTasks = useMemo(() => tasks.filter(t => !t.deleted && t.isToday && !t.done), [tasks]);
 
       const dayPct = useMemo(() => {
         const today = now.getDate();
@@ -749,7 +751,7 @@
       }, [items, history]);
 
       const tasksByPriority = useMemo(() => {
-        const pending = tasks.filter(t => !t.done);
+        const pending = tasks.filter(t => !t.deleted && !t.done);
         const urgentes = pending.filter(t => t.priority === 'urgentes');
         const importantes = pending.filter(t => t.priority === 'importantes');
         const otras = pending.filter(t => t.priority === 'otras');
@@ -1455,7 +1457,7 @@
 
       const existingAmbitos = useMemo(() => {
         const ambs = new Set();
-        tasks.forEach(t => {
+        tasks.filter(t => !t.deleted).forEach(t => {
           if (t.ambito) ambs.add(t.ambito);
           if (t.tags) t.tags.forEach(tag => ambs.add(tag)); // Compatibilidad
         });
@@ -1472,7 +1474,7 @@
       };
 
       const filtered = useMemo(() => {
-        return tasks.filter(t => {
+        return tasks.filter(t => !t.deleted).filter(t => {
           if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false;
           if (filterCat !== 'todas' && t.category !== filterCat) return false;
           if (filterPri !== 'todas' && t.priority !== filterPri) return false;
@@ -1481,7 +1483,7 @@
       }, [tasks, search, filterCat, filterPri]);
 
       const distrib = useMemo(() => {
-        const pending = tasks.filter(t => !t.done);
+        const pending = tasks.filter(t => !t.deleted && !t.done);
         const dist = {};
         categories.forEach(c => dist[c.id] = 0);
         pending.forEach(t => {
@@ -1720,6 +1722,70 @@
         );
       };
 
+      const chartData = useMemo(() => {
+        const labels = categories.map(c => c.name);
+        const colors = categories.map(c => c.color);
+        const totalData = categories.map(c => {
+          const catsTasks = tasks.filter(t => t.category === c.id);
+          return catsTasks.reduce((sum, t) => sum + 1 + (t.checklist ? t.checklist.length : 0), 0);
+        });
+        const completedData = categories.map(c => {
+          const catsTasks = tasks.filter(t => t.category === c.id);
+          return catsTasks.reduce((sum, t) => sum + (t.done ? 1 : 0) + (t.checklist ? t.checklist.filter(cl => cl.done).length : 0), 0);
+        });
+        return { labels, colors, totalData, completedData };
+      }, [tasks, categories]);
+
+      const chartTotalRef = useRef(null);
+      const chartCompletedRef = useRef(null);
+      const chartTotalInstance = useRef(null);
+      const chartCompletedInstance = useRef(null);
+
+      useEffect(() => {
+        if (chartTotalRef.current && chartData) {
+          if (chartTotalInstance.current) chartTotalInstance.current.destroy();
+          chartTotalInstance.current = new Chart(chartTotalRef.current, {
+            type: 'pie',
+            data: {
+              labels: chartData.labels,
+              datasets: [{
+                data: chartData.totalData,
+                backgroundColor: chartData.colors,
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'bottom' } }
+            }
+          });
+        }
+        if (chartCompletedRef.current && chartData) {
+          if (chartCompletedInstance.current) chartCompletedInstance.current.destroy();
+          chartCompletedInstance.current = new Chart(chartCompletedRef.current, {
+            type: 'pie',
+            data: {
+              labels: chartData.labels,
+              datasets: [{
+                data: chartData.completedData,
+                backgroundColor: chartData.colors,
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'bottom' } }
+            }
+          });
+        }
+        return () => {
+          if (chartTotalInstance.current) chartTotalInstance.current.destroy();
+          if (chartCompletedInstance.current) chartCompletedInstance.current.destroy();
+        }
+      }, [chartData]);
+
       return (
         <div className="tab-content space-y-lg">
           {/* Header */}
@@ -1727,6 +1793,22 @@
             <p className="font-mono text-[10px] tracking-widest text-on-surface-variant/60 uppercase mb-1">PÁG. 2</p>
             <h1 className="text-headline-lg-mobile md:text-headline-lg font-bold text-primary tracking-tight">Metas</h1>
           </header>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+            <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center">
+              <h2 className="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">Participación Total</h2>
+              <div className="w-full h-[250px] relative">
+                <canvas ref={chartTotalRef}></canvas>
+              </div>
+            </div>
+            <div className="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center">
+              <h2 className="text-label-sm font-bold text-on-surface-variant uppercase tracking-widest mb-4">Participación Completadas</h2>
+              <div className="w-full h-[250px] relative">
+                <canvas ref={chartCompletedRef}></canvas>
+              </div>
+            </div>
+          </div>
 
           {/* Search */}
           <div className="relative">
@@ -2545,7 +2627,7 @@
             })
           };
         }
-        case 'DELETE_TASK': return { ...state, tasks: state.tasks.filter(t => t.id !== action.taskId) };
+        case 'DELETE_TASK': return { ...state, tasks: state.tasks.map(t => t.id === action.taskId ? { ...t, deleted: true } : t) };
         case 'MOVE_TASK': {
           const { fromIndex, toIndex } = action;
           if (toIndex < 0 || toIndex >= state.tasks.length) return state;
